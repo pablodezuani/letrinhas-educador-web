@@ -1,0 +1,172 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens — mirror src/theme/*.ts. Keep both in sync manually:
+ * this file feeds Tailwind utility classes (bg-primary, text-h1, rounded-lg, shadow-md, p-lg…),
+ * theme/*.ts feeds JS logic (gradients, inline styles, canvas-confetti colors, etc).
+ */
+@theme {
+  --font-display: var(--font-pacifico), cursive;
+  --font-sans: var(--font-nunito), sans-serif;
+
+  /* Colors */
+  --color-background: #fff8f4;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f6eee6;
+  --color-surface-muted: #f1e9df;
+  --color-overlay: rgba(48, 95, 114, 0.45);
+  --color-overlay-light: rgba(48, 95, 114, 0.18);
+
+  --color-primary: #305f72;
+  --color-primary-light: #567b8b;
+  --color-primary-dark: #1f4352;
+  --color-primary-soft: rgba(48, 95, 114, 0.08);
+
+  --color-secondary: #cbaacb;
+  --color-secondary-light: #e2cde2;
+  --color-secondary-dark: #a988a9;
+  --color-secondary-soft: rgba(203, 170, 203, 0.18);
+
+  --color-accent: #f5a97c;
+  --color-accent-light: #fac7a6;
+  --color-accent-dark: #d48660;
+  --color-accent-soft: rgba(245, 169, 124, 0.18);
+
+  --color-success: #7fb77e;
+  --color-success-light: #e4f1e3;
+  --color-success-dark: #5c9a5b;
+
+  --color-warning: #e9b44c;
+  --color-warning-light: #fbeed1;
+  --color-warning-dark: #b98a2d;
+
+  --color-error: #d9756b;
+  --color-error-light: #fbe5e2;
+  --color-error-dark: #b85048;
+
+  --color-info: #6daed9;
+  --color-info-light: #dbedf7;
+  --color-info-dark: #4d8ab2;
+
+  --color-text-primary: #305f72;
+  --color-text-secondary: #6b7f88;
+  --color-text-muted: #98a5ab;
+  --color-text-disabled: #c2c8cb;
+  --color-text-on-primary: #fff8f4;
+  --color-text-on-secondary: #ffffff;
+  --color-text-on-accent: #4a1b0c;
+
+  --color-border: rgba(48, 95, 114, 0.12);
+  --color-border-strong: rgba(48, 95, 114, 0.25);
+  --color-border-focus: #305f72;
+  --color-divider: rgba(48, 95, 114, 0.08);
+
+  --color-tea-level-1: #7fb77e;
+  --color-tea-level-1-light: #e4f1e3;
+  --color-tea-level-2: #e9b44c;
+  --color-tea-level-2-light: #fbeed1;
+  --color-tea-level-3: #d9756b;
+  --color-tea-level-3-light: #fbe5e2;
+
+  --color-boy: #6daed9;
+  --color-boy-light: #dbedf7;
+  --color-boy-dark: #4d8ab2;
+  --color-girl: #e8a7bd;
+  --color-girl-light: #f7e0e8;
+  --color-girl-dark: #c5879b;
+
+  /* Spacing (matches theme/spacing.ts) */
+  --spacing-none: 0px;
+  --spacing-xxs: 2px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-xxl: 24px;
+  --spacing-xxxl: 32px;
+  --spacing-huge: 40px;
+  --spacing-massive: 56px;
+
+  /* Radius (matches theme/radius.ts) */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-xxl: 28px;
+  --radius-pill: 999px;
+
+  /* Shadows (matches theme/shadows.ts) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.14);
+  --shadow-xl: 0 8px 16px rgba(0, 0, 0, 0.2);
+
+  /* Typography (matches theme/typography.ts) */
+  --text-display: 40px;
+  --text-display--line-height: 48px;
+  --text-h1: 28px;
+  --text-h1--line-height: 34px;
+  --text-h2: 22px;
+  --text-h2--line-height: 28px;
+  --text-h3: 18px;
+  --text-h3--line-height: 24px;
+  --text-subtitle: 16px;
+  --text-subtitle--line-height: 22px;
+  --text-body: 15px;
+  --text-body--line-height: 22px;
+  --text-body-small: 13px;
+  --text-body-small--line-height: 20px;
+  --text-caption: 12px;
+  --text-caption--line-height: 16px;
+  --text-label: 11px;
+  --text-label--line-height: 14px;
+  --text-button: 16px;
+  --text-button--line-height: 20px;
+  --text-button-small: 14px;
+  --text-button-small--line-height: 18px;
+
+  /* Easing (matches theme/animation.ts) */
+  --ease-standard: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+html {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /*
+   * Mobile-first app shell: the app is meant to be opened from a phone browser.
+   * On wider viewports (desktop) we letterbox it to a phone-sized column instead
+   * of stretching the layout full-width.
+   */
+  min-height: 100dvh;
+  max-width: 480px;
+  margin-inline: auto;
+  background: var(--color-background);
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  overflow-x: hidden;
+  /* Establishes a containing block so `position: fixed` descendants (modals,
+     toasts, FABs) stay pinned to the phone-width column instead of the full
+     browser viewport on desktop. */
+  transform: translateZ(0);
+}
+
+@media (min-width: 481px) {
+  html {
+    background: var(--color-surface-muted);
+  }
+}
