@@ -1,3 +1,5 @@
+'use client'
+
 import { memo, useCallback, type ComponentType } from 'react'
 import { motion } from 'framer-motion'
 import { Camera, Leaf, Moon, Music, PauseCircle, RefreshCw, Volume2 } from 'lucide-react'

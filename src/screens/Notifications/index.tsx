@@ -1,3 +1,5 @@
+'use client'
+
 import { memo, useCallback, useMemo, useState, type ComponentType } from 'react'
 import { motion } from 'framer-motion'
 import { AlarmClock, BellOff, CheckCheck, Info, Lightbulb, Trophy } from 'lucide-react'

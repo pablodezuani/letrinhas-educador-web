@@ -1,0 +1,20 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/about/page": "/about",
+  "/add-child/page": "/add-child",
+  "/child/page": "/child",
+  "/create/page": "/create",
+  "/edit-profile/page": "/edit-profile",
+  "/favicon.ico/route": "/favicon.ico",
+  "/forgot-password/page": "/forgot-password",
+  "/games/phrase-builder/page": "/games/phrase-builder",
+  "/games/reading/page": "/games/reading",
+  "/games/vowels/page": "/games/vowels",
+  "/games/word-formation/page": "/games/word-formation",
+  "/help-support/page": "/help-support",
+  "/login/page": "/login",
+  "/notifications/page": "/notifications",
+  "/page": "/",
+  "/settings/page": "/settings"
+}

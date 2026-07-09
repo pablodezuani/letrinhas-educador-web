@@ -1,5 +1,7 @@
+'use client'
+
 import { useCallback, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Eye, EyeOff, Lock, Mail } from 'lucide-react'
 
@@ -18,7 +20,7 @@ const MINI_LETTERS: FloatingLetterSpec[] = [
 ]
 
 export default function Login() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const { signIn, loadingAuth } = useAuth()
   const reduceMotion = useReduceMotion()
 
@@ -47,9 +49,9 @@ export default function Login() {
     }
   }, [email, password, signIn, alert])
 
-  const goToCreate = useCallback(() => navigate('/create'), [navigate])
-  const goToReset = useCallback(() => navigate('/forgot-password'), [navigate])
-  const goBack = useCallback(() => navigate(-1), [navigate])
+  const goToCreate = useCallback(() => router.push('/create'), [router])
+  const goToReset = useCallback(() => router.push('/forgot-password'), [router])
+  const goBack = useCallback(() => router.back(), [router])
 
   return (
     <div className="relative flex flex-col min-h-dvh overflow-hidden" style={{ backgroundImage: 'linear-gradient(160deg, #061720, #0F2D3E, #1A4055, #305F72)' }}>

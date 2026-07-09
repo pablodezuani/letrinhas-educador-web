@@ -1,8 +1,11 @@
+'use client'
+
 import { memo, useCallback, type MouseEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { Brain, CheckCircle2, MoreHorizontal, Play, Star } from 'lucide-react'
 import type { Child } from '@/lib/types'
 import { colors } from '@/theme'
+import { stashSelectedChild } from '@/lib/navState'
 
 const MOOD_EMOJIS: Record<string, string> = {
   happy: '😊',
@@ -21,11 +24,12 @@ interface ChildCardProps {
 }
 
 function ChildCardComponent({ child, onSelect }: ChildCardProps) {
-  const navigate = useNavigate()
+  const router = useRouter()
 
   const handleCardPress = useCallback(() => {
-    navigate('/child', { state: { child } })
-  }, [navigate, child])
+    stashSelectedChild(child)
+    router.push('/child')
+  }, [router, child])
 
   const handleInfoPress = useCallback(
     (e: MouseEvent) => {

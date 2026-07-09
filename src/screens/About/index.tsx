@@ -1,3 +1,5 @@
+'use client'
+
 import { memo, type ComponentType } from 'react'
 import { motion } from 'framer-motion'
 import { Gamepad2, Heart, ShieldCheck, Smile, Sparkles, TrendingUp } from 'lucide-react'

@@ -1,3 +1,5 @@
+'use client'
+
 import { memo, useCallback, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ChevronDown, ChevronUp, CircleHelp, Mail, MessagesSquare, Search, XCircle } from 'lucide-react'

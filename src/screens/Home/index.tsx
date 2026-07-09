@@ -1,5 +1,7 @@
+'use client'
+
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { Plus } from 'lucide-react'
 
 import { type Child, mapApiChild, type User } from '@/lib/types'
@@ -12,7 +14,7 @@ import { useAuth } from '@/hooks'
 import { gradients } from '@/theme'
 
 export default function HomeScreen() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const { user: authUser } = useAuth()
   const [children, setChildren] = useState<Child[]>([])
   const [selectedChild, setSelectedChild] = useState<Child | null>(null)
@@ -74,7 +76,7 @@ export default function HomeScreen() {
     })
   }, [])
 
-  const navigateToAddChild = useCallback(() => navigate('/add-child'), [navigate])
+  const navigateToAddChild = useCallback(() => router.push('/add-child'), [router])
 
   return (
     <div className="min-h-dvh bg-background flex flex-col relative">

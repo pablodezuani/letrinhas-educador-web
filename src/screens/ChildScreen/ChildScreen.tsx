@@ -1,8 +1,10 @@
+'use client'
+
 import { useMemo } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowLeft, BookOpen, Gamepad2, MessageCircle, Music, Play, Puzzle } from 'lucide-react'
-import type { Child } from '@/lib/types'
+import { readSelectedChild, stashGameNav } from '@/lib/navState'
 
 type Gender = 'menino' | 'menina'
 
@@ -30,9 +32,8 @@ const THEMES = {
 } as const
 
 export default function ChildScreen() {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const child = (location.state as { child?: Child } | null)?.child
+  const router = useRouter()
+  const child = useMemo(() => readSelectedChild(), [])
 
   const gender: Gender = useMemo(() => (child ? (child.gender === 'female' ? 'menina' : 'menino') : 'menino'), [child])
   const displayName = child?.name || 'Amiguinho'
@@ -41,7 +42,8 @@ export default function ChildScreen() {
   const theme = THEMES[gender]
 
   const handleGamePress = (gameId: GameId) => {
-    navigate(`/games/${gameId}`, { state: { gender, childName: displayName, childColor, childId: child?.id } })
+    stashGameNav({ gender, childName: displayName, childColor, childId: child?.id })
+    router.push(`/games/${gameId}`)
   }
 
   return (
@@ -50,7 +52,7 @@ export default function ChildScreen() {
       <div className="absolute w-[100px] h-[100px] rounded-pill border-2 opacity-[0.18] top-[140px] -left-[30px] pointer-events-none" style={{ borderColor: theme.avatarBorder }} />
 
       <div className="relative flex items-center justify-between px-xl pb-sm pt-[calc(env(safe-area-inset-top)+8px)]">
-        <button type="button" onClick={() => navigate(-1)} aria-label="Voltar" className="w-11 h-11 rounded-pill bg-white/85 shadow-sm flex items-center justify-center">
+        <button type="button" onClick={() => router.back()} aria-label="Voltar" className="w-11 h-11 rounded-pill bg-white/85 shadow-sm flex items-center justify-center">
           <ArrowLeft size={22} color={theme.primary} />
         </button>
 

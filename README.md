@@ -4,8 +4,8 @@ Versão web (React + Vite) das telas do app mobile [Letrinhas-Encantadas](../Let
 
 ## Stack
 
-- Vite + React 19 + TypeScript
-- react-router-dom (rotas com estado via `location.state`, ex.: passar a criança selecionada para o hub de jogos)
+- Next.js 16 (App Router) + React 19 + TypeScript
+- Navegação via `next/navigation` (`useRouter`); estado que o react-router passaria por `location.state` (ex.: criança selecionada para o hub de jogos) atravessa a navegação via `sessionStorage`, em `src/lib/navState.ts`
 - Tailwind CSS v4 (tokens do design system em `src/index.css` via `@theme`, espelhando `src/theme/*.ts`)
 - framer-motion (animações)
 - lucide-react (ícones)
@@ -15,10 +15,10 @@ Versão web (React + Vite) das telas do app mobile [Letrinhas-Encantadas](../Let
 
 ```bash
 npm install
-npm run dev -- --host   # --host expõe na rede local para testar em um celular de verdade
+npm run dev
 ```
 
-Por padrão a API aponta para o backend de produção (Vercel). Para apontar para um backend local, copie `.env.example` para `.env.local` e ajuste `VITE_API_URL`.
+Por padrão a API aponta para o backend de produção (Vercel). Para apontar para um backend local, copie `.env.example` para `.env.local` e ajuste `NEXT_PUBLIC_API_URL`.
 
 ## Status
 

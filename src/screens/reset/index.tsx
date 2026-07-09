@@ -1,5 +1,7 @@
+'use client'
+
 import { useCallback, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Mail } from 'lucide-react'
 
@@ -13,10 +15,10 @@ export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const alert = useAlertModal()
-  const navigate = useNavigate()
+  const router = useRouter()
   const reduceMotion = useReduceMotion()
 
-  const goBack = useCallback(() => navigate(-1), [navigate])
+  const goBack = useCallback(() => router.back(), [router])
 
   const handleResetPassword = useCallback(async () => {
     if (!email) {

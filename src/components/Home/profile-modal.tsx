@@ -1,5 +1,7 @@
+'use client'
+
 import { memo, useCallback, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronRight, CircleHelp, Info, LogOut, Settings, User, X, Bell } from 'lucide-react'
 
@@ -22,16 +24,16 @@ interface MenuItem {
 
 function ProfileModalComponent({ user, visible, onClose }: ProfileModalProps) {
   const { signOut } = useAuth()
-  const navigate = useNavigate()
+  const router = useRouter()
   const alert = useAlertModal()
   const [signingOut, setSigningOut] = useState(false)
 
   const navigateTo = useCallback(
     (path: string) => {
       onClose()
-      navigate(path)
+      router.push(path)
     },
-    [navigate, onClose],
+    [router, onClose],
   )
 
   const menuItems = useMemo<MenuItem[]>(

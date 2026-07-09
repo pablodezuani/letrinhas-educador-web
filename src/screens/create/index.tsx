@@ -1,5 +1,7 @@
+'use client'
+
 import { useCallback, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Calendar, Eye, EyeOff, Lock, Mail, User } from 'lucide-react'
 
@@ -28,11 +30,11 @@ export default function CadastroScreen() {
 
   const { signUp, loadingAuth } = useAuth()
   const alert = useAlertModal()
-  const navigate = useNavigate()
+  const router = useRouter()
   const reduceMotion = useReduceMotion()
 
-  const goBack = useCallback(() => navigate(-1), [navigate])
-  const goToLogin = useCallback(() => navigate('/login'), [navigate])
+  const goBack = useCallback(() => router.back(), [router])
+  const goToLogin = useCallback(() => router.push('/login'), [router])
 
   const toggleSenha = useCallback(() => setMostrarSenha(p => !p), [])
   const toggleConfirmar = useCallback(() => setMostrarConfirmar(p => !p), [])

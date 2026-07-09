@@ -1,5 +1,7 @@
+'use client'
+
 import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import logo from '@/assets/brand/letrinhas.png'
 import { FloatingLetters, type FloatingLetterSpec } from '@/components/auth/FloatingLetters'
@@ -21,10 +23,10 @@ const LETTERS: FloatingLetterSpec[] = [
 ]
 
 export default function Welcome() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const reduceMotion = useReduceMotion()
 
-  const goToLogin = useCallback(() => navigate('/login'), [navigate])
+  const goToLogin = useCallback(() => router.push('/login'), [router])
 
   return (
     <div
@@ -52,7 +54,7 @@ export default function Welcome() {
             </>
           )}
           <div className="w-[152px] h-[152px] rounded-pill bg-white border-[3.5px] border-accent flex items-center justify-center shadow-lg">
-            <img src={logo} alt="" className="w-[68%] h-[68%] object-contain" />
+            <img src={logo.src} alt="" className="w-[68%] h-[68%] object-contain" />
           </div>
         </div>
 

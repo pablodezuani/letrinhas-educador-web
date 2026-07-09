@@ -1,5 +1,7 @@
+'use client'
+
 import { useCallback, useRef, useState, type ChangeEvent, type ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Calendar, Camera, CheckCircle2, Construction, Heart, Pencil, User, XCircle } from 'lucide-react'
 
@@ -65,7 +67,7 @@ const csvField = (value: string[]) => value.join(', ')
 const parseCsv = (text: string) => text.split(', ').filter(i => i.trim())
 
 export default function AddChildScreen() {
-  const navigate = useNavigate()
+  const router = useRouter()
   const alert = useAlertModal()
   const { openCamera, openGallery } = usePhotoPicker()
   const [currentStep, setCurrentStep] = useState(1)
@@ -121,22 +123,22 @@ export default function AddChildScreen() {
         title: 'Parabéns! 🎉',
         message: 'Perfil da criança criado com sucesso!',
         variant: 'success',
-        actions: [{ label: 'Finalizar', variant: 'primary', onPress: () => navigate(-1) }],
+        actions: [{ label: 'Finalizar', variant: 'primary', onPress: () => router.back() }],
       })
     } catch (err: any) {
       alert.showError(err?.response?.data?.error || 'Não foi possível salvar. Tente novamente.', 'Erro')
     } finally {
       setIsLoading(false)
     }
-  }, [currentStep, childData, alert, navigate])
+  }, [currentStep, childData, alert, router])
 
   const handleBack = useCallback(() => {
     if (currentStep > 1) {
       setCurrentStep(prev => prev - 1)
     } else {
-      navigate(-1)
+      router.back()
     }
-  }, [currentStep, navigate])
+  }, [currentStep, router])
 
   const handlePickResult = useCallback(
     (uri: string | null, error?: 'permission-denied' | 'unknown') => {

@@ -1,3 +1,5 @@
+'use client'
+
 import { useCallback, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Camera, CheckCircle2, Mail, ShieldCheck, User } from 'lucide-react'

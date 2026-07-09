@@ -14,7 +14,7 @@ export function SplashScreen() {
         transition={{ duration: reduceMotion ? 0 : 0.7, ease: [0.34, 1.56, 0.64, 1] }}
         className="w-[140px] h-[140px] rounded-pill bg-accent-light border-[3px] border-accent flex items-center justify-center mb-xl shadow-md"
       >
-        <img src={logo} alt="Letrinhas Encantadas" className="w-[65%] h-[65%] object-contain" />
+        <img src={logo.src} alt="Letrinhas Encantadas" className="w-[65%] h-[65%] object-contain" />
       </motion.div>
 
       <motion.div
