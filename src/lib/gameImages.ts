@@ -19,30 +19,35 @@ import sol from '@/assets/vowels/sol.png'
 import telefone from '@/assets/vowels/telefone.png'
 import uva from '@/assets/vowels/uva.png'
 
+import type { StaticImageData } from 'next/image'
+
 /**
  * Substitui o `import.meta.glob` do Vite (não suportado pelo bundler do
  * Next.js) por um mapa estático. São só 20 imagens e a lista muda raramente,
  * então listar explicitamente é mais simples que qualquer alternativa dinâmica.
+ *
+ * Mantém os objetos de import (não `.src`) para que `next/image` conheça as
+ * dimensões e otimize (resize/webp/avif) automaticamente.
  */
-export const VOWELS_IMAGE_MAP: Record<string, string> = {
-  abacaxi: abacaxi.src,
-  bola: bola.src,
-  cachorro: cachorro.src,
-  casa: casa.src,
-  chave: chave.src,
-  elefante: elefante.src,
-  faca: faca.src,
-  flor: flor.src,
-  gato: gato.src,
-  gelo: gelo.src,
-  igreja: igreja.src,
-  lapis: lapis.src,
-  mao: mao.src,
-  mesa: mesa.src,
-  ovo: ovo.src,
-  pato: pato.src,
-  peixe: peixe.src,
-  sol: sol.src,
-  telefone: telefone.src,
-  uva: uva.src,
+export const VOWELS_IMAGE_MAP: Record<string, StaticImageData> = {
+  abacaxi,
+  bola,
+  cachorro,
+  casa,
+  chave,
+  elefante,
+  faca,
+  flor,
+  gato,
+  gelo,
+  igreja,
+  lapis,
+  mao,
+  mesa,
+  ovo,
+  pato,
+  peixe,
+  sol,
+  telefone,
+  uva,
 }

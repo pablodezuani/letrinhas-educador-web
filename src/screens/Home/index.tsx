@@ -22,6 +22,7 @@ export default function HomeScreen() {
   const [profileModalVisible, setProfileModalVisible] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearchBar, setShowSearchBar] = useState(false)
+  const [loadingChildren, setLoadingChildren] = useState(true)
 
   const fetchChildren = useCallback(async () => {
     try {
@@ -30,6 +31,8 @@ export default function HomeScreen() {
       setChildren(mapped)
     } catch (err) {
       console.error('Erro ao buscar crianças:', err)
+    } finally {
+      setLoadingChildren(false)
     }
   }, [])
 
@@ -90,7 +93,7 @@ export default function HomeScreen() {
         onOpenProfile={openProfile}
       />
 
-      <ChildrenList children={filteredChildren} onChildSelect={openModal} searchQuery={searchQuery} onAddChild={navigateToAddChild} />
+      <ChildrenList children={filteredChildren} loading={loadingChildren} onChildSelect={openModal} searchQuery={searchQuery} onAddChild={navigateToAddChild} />
 
       {selectedChild && <ChildModal child={selectedChild} visible={modalVisible} onClose={closeModal} />}
 

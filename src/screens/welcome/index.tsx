@@ -3,6 +3,7 @@
 import { useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import logo from '@/assets/brand/letrinhas.png'
 import { FloatingLetters, type FloatingLetterSpec } from '@/components/auth/FloatingLetters'
 import { useReduceMotion } from '@/contexts/ThemeContext'
@@ -54,7 +55,7 @@ export default function Welcome() {
             </>
           )}
           <div className="w-[152px] h-[152px] rounded-pill bg-white border-[3.5px] border-accent flex items-center justify-center shadow-lg">
-            <img src={logo.src} alt="" className="w-[68%] h-[68%] object-contain" />
+            <Image src={logo} alt="" priority className="w-[68%] h-[68%] object-contain" />
           </div>
         </div>
 

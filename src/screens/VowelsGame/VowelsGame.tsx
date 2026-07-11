@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image, { type StaticImageData } from 'next/image'
 import confetti from 'canvas-confetti'
 import { ArrowLeft, CheckCircle2, Music, Star, Target, Volume2, XCircle } from 'lucide-react'
 
@@ -15,7 +16,7 @@ import { colors } from '@/theme'
 
 interface VowelOption {
   label: string
-  image: string
+  image?: StaticImageData
   emoji: string
 }
 
@@ -88,12 +89,12 @@ export default function VowelsGame() {
           sound: w.sound ?? '',
           correct: {
             label: w.data?.correct?.label ?? w.text,
-            image: VOWELS_IMAGE_MAP[w.data?.correct?.imageKey] ?? '',
+            image: VOWELS_IMAGE_MAP[w.data?.correct?.imageKey],
             emoji: w.data?.correct?.emoji ?? w.emoji ?? '',
           },
           wrong: (w.data?.wrong ?? []).map((wr: any) => ({
             label: wr.label,
-            image: VOWELS_IMAGE_MAP[wr.imageKey] ?? '',
+            image: VOWELS_IMAGE_MAP[wr.imageKey],
             emoji: wr.emoji ?? '',
           })),
         }))
@@ -285,7 +286,11 @@ export default function VowelsGame() {
                 <div className="h-1.5 w-full" style={{ backgroundImage: `linear-gradient(90deg, ${accentGradient.join(', ')})` }} />
                 <div className="p-md flex flex-col items-center">
                   <div className="relative w-full h-[100px] flex items-center justify-center mb-sm">
-                    {option.image ? <img src={option.image} alt={option.label} className="max-w-[90px] max-h-[90px] object-contain" /> : <span className="text-[40px]">{option.emoji}</span>}
+                    {option.image ? (
+                      <Image src={option.image} alt={option.label} width={90} height={90} className="max-w-[90px] max-h-[90px] object-contain" />
+                    ) : (
+                      <span className="text-[40px]">{option.emoji}</span>
+                    )}
                     {showCorrect && (
                       <span className="absolute -top-1.5 -right-1.5 w-7 h-7 rounded-pill bg-success flex items-center justify-center border-2 border-white">
                         <CheckCircle2 size={16} color="white" />
