@@ -288,16 +288,18 @@ function BasicInfoStep({ childData, set, onSelectPhoto }: { childData: ChildForm
   return (
     <>
       <div className="flex justify-center mb-xxl">
-        <button type="button" onClick={onSelectPhoto} aria-label="Selecionar foto" className="relative w-[90px] h-[90px] rounded-pill overflow-hidden border-2 border-white/30 transition-transform active:scale-[0.96]">
-          {childData.photo ? (
-            <img src={childData.photo} alt="" className="w-full h-full object-cover" />
-          ) : (
-            <span className="w-full h-full flex items-center justify-center" style={{ backgroundImage: `linear-gradient(135deg, ${gradients.girl.join(', ')})` }}>
-              <Camera size={28} color="white" />
-            </span>
-          )}
-          <span className="absolute bottom-0 right-0 w-[26px] h-[26px] rounded-pill bg-black/50 flex items-center justify-center">
-            <Pencil size={16} color="white" />
+        <button type="button" onClick={onSelectPhoto} aria-label="Selecionar foto" className="relative w-[90px] h-[90px] transition-transform active:scale-[0.96]">
+          <span className="block w-full h-full rounded-pill overflow-hidden border-2 border-white/30">
+            {childData.photo ? (
+              <img src={childData.photo} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <span className="w-full h-full flex items-center justify-center" style={{ backgroundImage: `linear-gradient(135deg, ${gradients.girl.join(', ')})` }}>
+                <Camera size={28} color="white" />
+              </span>
+            )}
+          </span>
+          <span className="absolute -bottom-0.5 -right-0.5 w-[26px] h-[26px] rounded-pill bg-black/60 border-2 border-white/25 flex items-center justify-center">
+            <Pencil size={14} color="white" />
           </span>
         </button>
       </div>
@@ -356,31 +358,33 @@ function BasicInfoStep({ childData, set, onSelectPhoto }: { childData: ChildForm
         <p className="text-white text-[17px] font-semibold mb-3 text-center">Diagnóstico TEA</p>
 
         <div className="flex flex-col gap-2.5 mb-4">
-          <button type="button" onClick={() => set('hasAutism', 'yes')} className="rounded-xl overflow-hidden transition-transform active:scale-[0.98]">
-            <span
-              className="flex items-center p-3 rounded-xl"
-              style={{ backgroundImage: childData.hasAutism === 'yes' ? `linear-gradient(90deg, ${gradients.secondary.join(', ')})` : 'linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))' }}
-            >
-              <span className="flex items-center bg-black/20 rounded-[11px] p-3 w-full">
-                <CheckCircle2 size={22} color={childData.hasAutism === 'yes' ? '#fff' : 'rgba(255,255,255,0.6)'} className="mr-3" />
-                <span className="text-[15px] font-medium" style={{ color: childData.hasAutism === 'yes' ? '#fff' : 'rgba(255,255,255,0.8)' }}>
-                  Sim, possui TEA
-                </span>
-              </span>
+          <button
+            type="button"
+            onClick={() => set('hasAutism', 'yes')}
+            className="flex items-center p-3 rounded-xl border transition-colors active:scale-[0.98]"
+            style={{
+              backgroundColor: childData.hasAutism === 'yes' ? colors.primary : 'rgba(255,255,255,0.08)',
+              borderColor: childData.hasAutism === 'yes' ? colors.primary : 'rgba(255,255,255,0.18)',
+            }}
+          >
+            <CheckCircle2 size={22} color={childData.hasAutism === 'yes' ? '#fff' : 'rgba(255,255,255,0.6)'} className="mr-3 shrink-0" />
+            <span className="text-[15px] font-medium" style={{ color: childData.hasAutism === 'yes' ? '#fff' : 'rgba(255,255,255,0.8)' }}>
+              Sim, possui TEA
             </span>
           </button>
 
-          <button type="button" onClick={() => set('hasAutism', 'no')} className="rounded-xl overflow-hidden transition-transform active:scale-[0.98]">
-            <span
-              className="flex items-center p-3 rounded-xl"
-              style={{ backgroundImage: childData.hasAutism === 'no' ? `linear-gradient(90deg, ${gradients.secondary.join(', ')})` : 'linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))' }}
-            >
-              <span className="flex items-center bg-black/20 rounded-[11px] p-3 w-full">
-                <XCircle size={22} color={childData.hasAutism === 'no' ? '#fff' : 'rgba(255,255,255,0.6)'} className="mr-3" />
-                <span className="text-[15px] font-medium" style={{ color: childData.hasAutism === 'no' ? '#fff' : 'rgba(255,255,255,0.8)' }}>
-                  Não possui TEA
-                </span>
-              </span>
+          <button
+            type="button"
+            onClick={() => set('hasAutism', 'no')}
+            className="flex items-center p-3 rounded-xl border transition-colors active:scale-[0.98]"
+            style={{
+              backgroundColor: childData.hasAutism === 'no' ? colors.primary : 'rgba(255,255,255,0.08)',
+              borderColor: childData.hasAutism === 'no' ? colors.primary : 'rgba(255,255,255,0.18)',
+            }}
+          >
+            <XCircle size={22} color={childData.hasAutism === 'no' ? '#fff' : 'rgba(255,255,255,0.6)'} className="mr-3 shrink-0" />
+            <span className="text-[15px] font-medium" style={{ color: childData.hasAutism === 'no' ? '#fff' : 'rgba(255,255,255,0.8)' }}>
+              Não possui TEA
             </span>
           </button>
         </div>
