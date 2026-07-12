@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState, type ChangeEvent, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Calendar, Camera, CheckCircle2, Construction, Heart, Pencil, User, XCircle } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Calendar, Camera, CheckCircle2, Heart, Pencil, User, XCircle } from 'lucide-react'
 
 import { AlertModal, useAlertModal } from '@/components/common'
 import { CHILD_PALETTES, JOURNEY_STEPS } from '@/constants'
@@ -260,16 +260,6 @@ export default function AddChildScreen() {
               <ElegantTextArea label="Alergias" placeholder="Alergias ou restrições..." value={csvField(childData.allergies)} onChange={v => set('allergies', parseCsv(v))} />
             </CategoryStep>
           )}
-          {currentStep === 6 && (
-            <div className="flex flex-col items-center py-10">
-              <p className="text-white text-[18px] font-semibold mb-2">{currentStepData?.title}</p>
-              <p className="text-white/70 text-[14px] text-center mb-[30px]">{currentStepData?.description}</p>
-              <div className="flex flex-col items-center">
-                <Construction size={64} color="rgba(255,255,255,0.6)" />
-                <p className="text-white/50 text-[15px] mt-[15px]">Em desenvolvimento...</p>
-              </div>
-            </div>
-          )}
         </motion.div>
       </div>
 
@@ -330,7 +320,8 @@ function BasicInfoStep({ childData, set, onSelectPhoto }: { childData: ChildForm
 
         <div className="flex gap-3">
           <div className="flex-1">
-            <ElegantInput placeholder="Idade" value={childData.age} onChange={v => set('age', v.replace(/\D/g, ''))} Icon={Calendar} inputMode="numeric" />
+            <p className="text-[13px] text-white/70 mb-1.5 ml-0.5">Idade</p>
+            <ElegantInput placeholder="Ex: 6" value={childData.age} onChange={v => set('age', v.replace(/\D/g, ''))} Icon={Calendar} inputMode="numeric" />
           </div>
 
           <div className="flex-1">

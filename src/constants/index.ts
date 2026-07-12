@@ -4,7 +4,6 @@ export const JOURNEY_STEPS = [
   { id: 3, title: 'Comportamento', description: 'Gostos e habilidades' },
   { id: 4, title: 'Ajuda', description: 'Como me ajudar' },
   { id: 5, title: 'Saúde', description: 'Informações médicas e TEA' },
-  { id: 6, title: 'Finalização', description: 'Revisão e confirmação' },
 ] as const
 
 /** Paleta aleatória atribuída a cada criança nova (usada em cards/gradients). */
