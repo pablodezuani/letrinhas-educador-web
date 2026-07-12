@@ -1,15 +1,18 @@
 'use client'
 
-import { useCallback, useRef, useState, type ChangeEvent, type ReactNode } from 'react'
+import { useCallback, useRef, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowLeft, ArrowRight, Calendar, Camera, CheckCircle2, Heart, Pencil, User, XCircle } from 'lucide-react'
 
 import { AlertModal, useAlertModal } from '@/components/common'
+import { Button, Input, ProgressBar } from '@/components/ui'
 import { CHILD_PALETTES, JOURNEY_STEPS } from '@/constants'
 import { usePhotoPicker } from '@/hooks'
 import { api } from '@/services/api'
-import { gradients } from '@/theme'
+import { colors, gradients } from '@/theme'
+
+const CONTENT_MAX_WIDTH = 480
 
 interface ChildFormData {
   name: string
@@ -184,50 +187,37 @@ export default function AddChildScreen() {
 
   const currentStepData = JOURNEY_STEPS.find(step => step.id === currentStep)
   const isLastStep = currentStep === JOURNEY_STEPS.length
-  const progressPct = (currentStep / JOURNEY_STEPS.length) * 100
 
   return (
     <div className="min-h-dvh flex flex-col relative" style={{ backgroundImage: `linear-gradient(160deg, ${gradients.primary.join(', ')})` }}>
-      <div className="flex items-center px-xl pb-[15px] pt-[calc(env(safe-area-inset-top)+10px)]">
-        <button type="button" onClick={handleBack} aria-label="Voltar" className="w-9 h-9 rounded-pill bg-white/15 flex items-center justify-center shrink-0">
-          <ArrowLeft size={22} color="white" />
-        </button>
+      <div className="w-full mx-auto" style={{ maxWidth: CONTENT_MAX_WIDTH }}>
+        <div className="flex items-center gap-md px-xl pb-md pt-[calc(env(safe-area-inset-top)+10px)]">
+          <button type="button" onClick={handleBack} aria-label="Voltar" className="w-9 h-9 rounded-pill bg-white/15 flex items-center justify-center shrink-0 transition-transform active:scale-[0.92]">
+            <ArrowLeft size={20} color="white" />
+          </button>
 
-        <div className="flex-1 mx-[15px] flex flex-col items-center">
-          <p className="text-white text-[17px] font-semibold mb-2 text-center">{currentStepData?.title}</p>
-          <div className="flex justify-center gap-1.5">
-            {JOURNEY_STEPS.map((step, index) => (
-              <span
-                key={step.id}
-                className="rounded-full"
-                style={{
-                  width: index === currentStep - 1 ? 8 : 6,
-                  height: index === currentStep - 1 ? 8 : 6,
-                  backgroundColor: index === currentStep - 1 ? '#fff' : index < currentStep ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)',
-                }}
-              />
-            ))}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-baseline justify-between mb-1.5">
+              <p className="text-white text-[15px] font-semibold truncate">{currentStepData?.title}</p>
+              <span className="text-white/60 text-label shrink-0 ml-sm">
+                {currentStep}/{JOURNEY_STEPS.length}
+              </span>
+            </div>
+            <ProgressBar value={currentStep} max={JOURNEY_STEPS.length} height={4} color={colors.white} trackColor="rgba(255,255,255,0.15)" aria-label="Progresso do cadastro" />
           </div>
         </div>
-
-        <div className="w-9 h-9 rounded-pill bg-white/15 flex items-center justify-center shrink-0">
-          <span className="text-white text-[12px] font-semibold">
-            {currentStep}/{JOURNEY_STEPS.length}
-          </span>
-        </div>
       </div>
 
-      <div className="px-xl pb-[15px]">
-        <div className="h-[3px] bg-white/15 rounded-full overflow-hidden">
-          <motion.div className="h-full bg-white rounded-full" animate={{ width: `${progressPct}%` }} transition={{ duration: 0.3 }} />
-        </div>
-      </div>
-
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-xl pt-[5px]" style={{ paddingBottom: 100 }}>
-        <motion.div key={currentStep} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.25 }} className="bg-white/8 rounded-lg p-[22px] border border-white/12">
-          {currentStep === 1 && (
-            <BasicInfoStep childData={childData} set={set} onSelectPhoto={selectPhoto} />
-          )}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-xl pt-sm" style={{ paddingBottom: 110 }}>
+        <motion.div
+          key={currentStep}
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.25 }}
+          className="w-full mx-auto bg-white/8 rounded-xl p-xl border border-white/12"
+          style={{ maxWidth: CONTENT_MAX_WIDTH }}
+        >
+          {currentStep === 1 && <BasicInfoStep childData={childData} set={set} onSelectPhoto={selectPhoto} />}
           {currentStep === 2 && (
             <CategoryStep emoji="👤" title="Informações Pessoais">
               <ElegantTextArea label="Sobre mim" placeholder="Conte sobre a personalidade da criança..." value={childData.aboutMe} onChange={v => set('aboutMe', v)} />
@@ -263,21 +253,19 @@ export default function AddChildScreen() {
         </motion.div>
       </div>
 
-      <div className="fixed left-5 right-5 z-10" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 25px)', maxWidth: 440, marginInline: 'auto' }}>
-        <button
-          type="button"
+      <div className="fixed left-5 right-5 z-10" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 25px)', maxWidth: CONTENT_MAX_WIDTH, marginInline: 'auto' }}>
+        <Button
+          label={isLoading ? 'Salvando...' : isLastStep ? 'Finalizar' : 'Continuar'}
           onClick={handleNext}
-          disabled={!canProceed() || isLoading}
-          className="w-full rounded-xl overflow-hidden transition-transform active:scale-[0.98] disabled:opacity-60"
-        >
-          <span
-            className="flex items-center justify-center gap-sm py-[14px] px-xl"
-            style={{ backgroundImage: !canProceed() ? 'linear-gradient(90deg, rgba(255,255,255,0.2), rgba(255,255,255,0.1))' : `linear-gradient(90deg, ${gradients.success.join(', ')})` }}
-          >
-            <span className="text-white text-[16px] font-semibold">{isLoading ? 'Salvando...' : isLastStep ? 'Finalizar' : 'Continuar'}</span>
-            {!isLoading && (isLastStep ? <CheckCircle2 size={22} color="white" /> : <ArrowRight size={22} color="white" />)}
-          </span>
-        </button>
+          disabled={!canProceed()}
+          loading={isLoading}
+          fullWidth
+          size="lg"
+          variant="gradient"
+          gradient={gradients.success}
+          icon={isLastStep ? <CheckCircle2 size={22} /> : <ArrowRight size={22} />}
+          iconPosition="right"
+        />
       </div>
 
       <AlertModal visible={alert.state.visible} onClose={alert.hide} title={alert.state.title} message={alert.state.message} variant={alert.state.variant} actions={alert.state.actions} autoHideMs={alert.state.autoHideMs} />
@@ -299,8 +287,8 @@ function CategoryStep({ emoji, title, children }: { emoji: string; title: string
 function BasicInfoStep({ childData, set, onSelectPhoto }: { childData: ChildFormData; set: <K extends keyof ChildFormData>(key: K, value: ChildFormData[K]) => void; onSelectPhoto: () => void }) {
   return (
     <>
-      <div className="flex justify-center mb-[25px]">
-        <button type="button" onClick={onSelectPhoto} aria-label="Selecionar foto" className="relative w-[90px] h-[90px] rounded-pill overflow-hidden border-2 border-white/30">
+      <div className="flex justify-center mb-xxl">
+        <button type="button" onClick={onSelectPhoto} aria-label="Selecionar foto" className="relative w-[90px] h-[90px] rounded-pill overflow-hidden border-2 border-white/30 transition-transform active:scale-[0.96]">
           {childData.photo ? (
             <img src={childData.photo} alt="" className="w-full h-full object-cover" />
           ) : (
@@ -314,24 +302,30 @@ function BasicInfoStep({ childData, set, onSelectPhoto }: { childData: ChildForm
         </button>
       </div>
 
-      <div className="flex flex-col gap-lg mb-[25px]">
-        <ElegantInput placeholder="Nome da criança" value={childData.name} onChange={v => set('name', v)} Icon={User} required />
-        <ElegantInput placeholder="Apelido (opcional)" value={childData.nickname} onChange={v => set('nickname', v)} Icon={Heart} />
+      <div className="flex flex-col gap-none mb-lg">
+        <Input tone="dark" label="Nome da criança *" placeholder="Nome completo" value={childData.name} onChange={e => set('name', e.target.value)} icon={<User size={18} color="rgba(255,248,244,0.7)" />} />
+        <Input tone="dark" label="Apelido" placeholder="Como ela gosta de ser chamada (opcional)" value={childData.nickname} onChange={e => set('nickname', e.target.value)} icon={<Heart size={18} color="rgba(255,248,244,0.7)" />} />
 
-        <div className="flex gap-3">
-          <div className="flex-1">
-            <p className="text-[13px] text-white/70 mb-1.5 ml-0.5">Idade</p>
-            <ElegantInput placeholder="Ex: 6" value={childData.age} onChange={v => set('age', v.replace(/\D/g, ''))} Icon={Calendar} inputMode="numeric" />
-          </div>
+        <div className="flex gap-md items-start">
+          <Input
+            tone="dark"
+            label="Idade"
+            placeholder="Ex: 6"
+            value={childData.age}
+            onChange={e => set('age', e.target.value.replace(/\D/g, ''))}
+            icon={<Calendar size={18} color="rgba(255,248,244,0.7)" />}
+            inputMode="numeric"
+            containerClassName="flex-1"
+          />
 
-          <div className="flex-1">
-            <p className="text-[13px] text-white/70 mb-1.5 ml-0.5">Gênero</p>
-            <div className="flex h-11 rounded-[10px] overflow-hidden border border-white/12">
+          <div className="flex-1 mb-md">
+            <p className="text-label mb-xs uppercase tracking-[1.2px] text-[rgba(255,248,244,0.65)]">Gênero</p>
+            <div className="flex h-12 rounded-md overflow-hidden border border-white/18">
               <button
                 type="button"
                 onClick={() => set('gender', 'male')}
-                className="flex-1 min-w-0 flex items-center justify-center gap-1 px-1 border-r border-white/12"
-                style={{ backgroundColor: childData.gender === 'male' ? 'rgba(102,126,234,0.6)' : 'rgba(255,255,255,0.08)' }}
+                className="flex-1 min-w-0 flex items-center justify-center gap-1 px-1 border-r border-white/18 transition-colors"
+                style={{ backgroundColor: childData.gender === 'male' ? colors.boy : 'rgba(255,255,255,0.08)' }}
               >
                 <span className="shrink-0 text-[13px]" style={{ color: childData.gender === 'male' ? '#fff' : 'rgba(255,255,255,0.6)' }}>
                   ♂
@@ -343,8 +337,8 @@ function BasicInfoStep({ childData, set, onSelectPhoto }: { childData: ChildForm
               <button
                 type="button"
                 onClick={() => set('gender', 'female')}
-                className="flex-1 min-w-0 flex items-center justify-center gap-1 px-1"
-                style={{ backgroundColor: childData.gender === 'female' ? 'rgba(102,126,234,0.6)' : 'rgba(255,255,255,0.08)' }}
+                className="flex-1 min-w-0 flex items-center justify-center gap-1 px-1 transition-colors"
+                style={{ backgroundColor: childData.gender === 'female' ? colors.girl : 'rgba(255,255,255,0.08)' }}
               >
                 <span className="shrink-0 text-[13px]" style={{ color: childData.gender === 'female' ? '#fff' : 'rgba(255,255,255,0.6)' }}>
                   ♀
@@ -358,14 +352,14 @@ function BasicInfoStep({ childData, set, onSelectPhoto }: { childData: ChildForm
         </div>
       </div>
 
-      <div className="mt-2">
+      <div className="pt-lg border-t border-white/12">
         <p className="text-white text-[17px] font-semibold mb-3 text-center">Diagnóstico TEA</p>
 
         <div className="flex flex-col gap-2.5 mb-4">
-          <button type="button" onClick={() => set('hasAutism', 'yes')} className="rounded-xl overflow-hidden">
+          <button type="button" onClick={() => set('hasAutism', 'yes')} className="rounded-xl overflow-hidden transition-transform active:scale-[0.98]">
             <span
               className="flex items-center p-3 rounded-xl"
-              style={{ backgroundImage: childData.hasAutism === 'yes' ? `linear-gradient(90deg, ${gradients.success.join(', ')})` : 'linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))' }}
+              style={{ backgroundImage: childData.hasAutism === 'yes' ? `linear-gradient(90deg, ${gradients.secondary.join(', ')})` : 'linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))' }}
             >
               <span className="flex items-center bg-black/20 rounded-[11px] p-3 w-full">
                 <CheckCircle2 size={22} color={childData.hasAutism === 'yes' ? '#fff' : 'rgba(255,255,255,0.6)'} className="mr-3" />
@@ -376,10 +370,10 @@ function BasicInfoStep({ childData, set, onSelectPhoto }: { childData: ChildForm
             </span>
           </button>
 
-          <button type="button" onClick={() => set('hasAutism', 'no')} className="rounded-xl overflow-hidden">
+          <button type="button" onClick={() => set('hasAutism', 'no')} className="rounded-xl overflow-hidden transition-transform active:scale-[0.98]">
             <span
               className="flex items-center p-3 rounded-xl"
-              style={{ backgroundImage: childData.hasAutism === 'no' ? `linear-gradient(90deg, ${gradients.warning.join(', ')})` : 'linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))' }}
+              style={{ backgroundImage: childData.hasAutism === 'no' ? `linear-gradient(90deg, ${gradients.secondary.join(', ')})` : 'linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))' }}
             >
               <span className="flex items-center bg-black/20 rounded-[11px] p-3 w-full">
                 <XCircle size={22} color={childData.hasAutism === 'no' ? '#fff' : 'rgba(255,255,255,0.6)'} className="mr-3" />
@@ -397,21 +391,21 @@ function BasicInfoStep({ childData, set, onSelectPhoto }: { childData: ChildForm
             <div className="flex gap-2">
               {(
                 [
-                  { key: '1', label: 'Nível 1', desc: 'Apoio', color: '#11998e', gradient: gradients.success },
-                  { key: '2', label: 'Nível 2', desc: 'Apoio substancial', color: '#f7b733', gradient: gradients.warning },
-                  { key: '3', label: 'Nível 3', desc: 'Apoio muito substancial', color: '#f5576c', gradient: gradients.secondary },
+                  { key: '1', label: 'Nível 1', desc: 'Apoio', color: colors.teaLevel1 },
+                  { key: '2', label: 'Nível 2', desc: 'Apoio substancial', color: colors.teaLevel2 },
+                  { key: '3', label: 'Nível 3', desc: 'Apoio muito substancial', color: colors.teaLevel3 },
                 ] as const
               ).map(level => (
-                <button key={level.key} type="button" onClick={() => set('autismLevel', level.key)} className="flex-1 rounded-[10px] overflow-hidden">
+                <button key={level.key} type="button" onClick={() => set('autismLevel', level.key)} className="flex-1 rounded-[10px] overflow-hidden transition-transform active:scale-[0.97]">
                   <span
-                    className="flex flex-col items-center p-3 rounded-[10px]"
-                    style={{ backgroundImage: childData.autismLevel === level.key ? `linear-gradient(90deg, ${level.gradient.join(', ')})` : 'linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05))' }}
+                    className="flex flex-col items-center p-3 rounded-[10px] transition-colors"
+                    style={{ backgroundColor: childData.autismLevel === level.key ? level.color : 'rgba(255,255,255,0.08)' }}
                   >
-                    <span className="w-2.5 h-2.5 rounded-pill mb-1.5" style={{ backgroundColor: childData.autismLevel === level.key ? level.color : 'rgba(255,255,255,0.3)' }} />
+                    <span className="w-2.5 h-2.5 rounded-pill mb-1.5" style={{ backgroundColor: childData.autismLevel === level.key ? '#fff' : 'rgba(255,255,255,0.3)' }} />
                     <span className="text-[13px] font-semibold mb-0.5" style={{ color: childData.autismLevel === level.key ? '#fff' : 'rgba(255,255,255,0.8)' }}>
                       {level.label}
                     </span>
-                    <span className="text-[10px] text-center" style={{ color: childData.autismLevel === level.key ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.5)' }}>
+                    <span className="text-[10px] text-center" style={{ color: childData.autismLevel === level.key ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.5)' }}>
                       {level.desc}
                     </span>
                   </span>
@@ -425,50 +419,16 @@ function BasicInfoStep({ childData, set, onSelectPhoto }: { childData: ChildForm
   )
 }
 
-function ElegantInput({
-  placeholder,
-  value,
-  onChange,
-  Icon,
-  required = false,
-  inputMode,
-}: {
-  placeholder: string
-  value: string
-  onChange: (v: string) => void
-  Icon: typeof User
-  required?: boolean
-  inputMode?: 'text' | 'numeric'
-}) {
-  const [isFocused, setIsFocused] = useState(false)
-
-  return (
-    <div
-      className="flex items-center rounded-[10px] border px-3 py-3 transition-colors"
-      style={{ backgroundColor: isFocused ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.08)', borderColor: isFocused ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.12)' }}
-    >
-      <Icon size={18} color={isFocused ? '#fff' : 'rgba(255,255,255,0.6)'} className="mr-2.5 shrink-0" />
-      <input
-        placeholder={placeholder}
-        value={value}
-        onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
-        inputMode={inputMode}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        className="flex-1 min-w-0 bg-transparent outline-none text-white text-[15px] placeholder:text-white/50"
-      />
-      {required && !value && <span className="text-[#f5576c] text-[16px] font-bold">*</span>}
-    </div>
-  )
-}
-
 function ElegantTextArea({ label, placeholder, value, onChange }: { label: string; placeholder: string; value: string; onChange: (v: string) => void }) {
   const [isFocused, setIsFocused] = useState(false)
 
   return (
     <div>
-      <p className="text-[13px] text-white/70 mb-1.5 ml-0.5">{label}</p>
-      <div className="rounded-[10px] border p-3 transition-colors" style={{ backgroundColor: isFocused ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.08)', borderColor: isFocused ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.12)' }}>
+      <p className="text-label mb-xs uppercase tracking-[1.2px] text-[rgba(255,248,244,0.65)]">{label}</p>
+      <div
+        className="rounded-md border p-3 transition-colors"
+        style={{ backgroundColor: 'rgba(255,255,255,0.08)', borderColor: isFocused ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.18)', borderWidth: isFocused ? 1.5 : 1 }}
+      >
         <textarea
           placeholder={placeholder}
           value={value}
@@ -476,7 +436,7 @@ function ElegantTextArea({ label, placeholder, value, onChange }: { label: strin
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           rows={3}
-          className="w-full min-h-[70px] bg-transparent outline-none text-white text-[15px] placeholder:text-white/50 resize-none"
+          className="w-full min-h-[70px] bg-transparent outline-none text-white text-[15px] placeholder:text-white/45 resize-none"
         />
       </div>
     </div>
