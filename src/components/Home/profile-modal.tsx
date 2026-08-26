@@ -6,7 +6,6 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronRight, CircleHelp, Info, LogOut, Settings, User, X, Bell } from 'lucide-react'
 
 import type { User as UserType } from '@/lib/types'
-import { gradients } from '@/theme'
 import { AlertModal, useAlertModal } from '@/components/common'
 import { useAuth } from '@/hooks'
 
@@ -86,55 +85,46 @@ function ProfileModalComponent({ user, visible, onClose }: ProfileModalProps) {
         {visible && (
           <motion.div className="fixed inset-0 z-50 flex items-center justify-center px-xl bg-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={onClose}>
             <motion.div
-              initial={{ scale: 0.85, opacity: 0 }}
+              initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.26, ease: [0.34, 1.56, 0.64, 1] }}
+              exit={{ scale: 0.94, opacity: 0 }}
+              transition={{ duration: 0.22 }}
               onClick={e => e.stopPropagation()}
-              className="w-full max-w-[420px] bg-surface rounded-xl overflow-hidden shadow-xl"
+              className="w-full max-w-[360px] bg-surface rounded-xl overflow-hidden shadow-lg"
             >
-              <div className="relative pt-huge pb-xxl px-xxl flex flex-col items-center" style={{ backgroundImage: `linear-gradient(135deg, ${gradients.primary.join(', ')})` }}>
-                <button type="button" onClick={onClose} aria-label="Fechar perfil" className="absolute top-md right-md w-8 h-8 rounded-pill bg-white/22 flex items-center justify-center">
-                  <X size={22} color="white" />
+              <div className="relative pt-xxl pb-lg px-xl flex flex-col items-center gap-1">
+                <button type="button" onClick={onClose} aria-label="Fechar menu" className="absolute top-3 right-3 w-7 h-7 rounded-pill bg-white/10 flex items-center justify-center text-text-primary">
+                  <X size={14} />
                 </button>
 
-                <div className="w-[84px] h-[84px] rounded-pill bg-white/22 flex items-center justify-center mb-md shadow-md">
-                  <span className="text-[34px] text-white font-bold">{user.name?.charAt(0)?.toUpperCase() || '?'}</span>
+                <div className="w-16 h-16 rounded-pill bg-primary-soft flex items-center justify-center mb-1">
+                  <span className="text-[24px] font-medium text-primary-light">{user.name?.charAt(0)?.toUpperCase() || '?'}</span>
                 </div>
-                <p className="text-h2 text-white mb-xs text-center truncate max-w-full">{user.name || 'Usuário'}</p>
-                <p className="text-body text-white/85 text-center truncate max-w-full mb-[2px]">{user.email}</p>
-                <p className="text-caption text-white/75 text-center">Membro desde {joinedAt}</p>
+                <p className="text-subtitle text-text-primary text-center truncate max-w-full">{user.name || 'Usuário'}</p>
+                <p className="text-caption text-text-secondary text-center truncate max-w-full">{user.email}</p>
+                <p className="text-label text-text-muted text-center">Membro desde {joinedAt}</p>
               </div>
 
-              <div className="py-md">
-                {menuItems.map((item, i) => (
-                  <button
-                    key={item.title}
-                    type="button"
-                    onClick={item.onPress}
-                    className={`w-full flex items-center px-xl py-md text-left ${i !== menuItems.length - 1 ? 'border-b border-divider' : ''}`}
-                  >
-                    <span className="w-10 h-10 rounded-pill bg-surface-alt flex items-center justify-center mr-md shrink-0">
-                      <item.Icon size={22} className="text-primary" />
-                    </span>
-                    <span className="flex-1 text-subtitle text-text-primary">{item.title}</span>
-                    <ChevronRight size={18} className="text-text-muted" />
+              <div className="flex flex-col">
+                {menuItems.map(item => (
+                  <button key={item.title} type="button" onClick={item.onPress} className="w-full flex items-center gap-md px-xl py-[13px] text-left border-t border-divider">
+                    <item.Icon size={18} className="text-text-secondary shrink-0" />
+                    <span className="flex-1 text-body text-text-primary">{item.title}</span>
+                    <ChevronRight size={14} className="text-text-muted" />
                   </button>
                 ))}
               </div>
 
-              <div className="mx-xl mb-xl">
+              <div className="px-xl pt-md pb-xl">
                 <button
                   type="button"
                   onClick={handleLogoutPress}
                   disabled={signingOut}
                   aria-label="Sair da conta"
-                  className="w-full rounded-lg overflow-hidden shadow-md transition-transform active:scale-[0.98] disabled:opacity-70"
+                  className="w-full h-11 rounded-pill border border-error text-error text-button-small flex items-center justify-center gap-sm disabled:opacity-45"
                 >
-                  <span className="flex items-center justify-center gap-sm py-md" style={{ backgroundImage: `linear-gradient(90deg, ${gradients.error.join(', ')})` }}>
-                    <LogOut size={22} color="white" />
-                    <span className="text-button text-white">{signingOut ? 'Saindo...' : 'Sair da conta'}</span>
-                  </span>
+                  <LogOut size={16} />
+                  {signingOut ? 'Saindo...' : 'Sair da conta'}
                 </button>
               </div>
             </motion.div>

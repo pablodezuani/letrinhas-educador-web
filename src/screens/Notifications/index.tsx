@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { AlarmClock, BellOff, CheckCheck, Info, Lightbulb, Trophy } from 'lucide-react'
 
 import { ScreenHeader } from '@/components/common'
-import { colors, gradients } from '@/theme'
+import { colors } from '@/theme'
 
 type NotificationType = 'achievement' | 'reminder' | 'tip' | 'system'
 
@@ -32,10 +32,10 @@ const FILTERS: readonly Filter[] = [
 ]
 
 const TYPE_META: Record<NotificationType, { Icon: ComponentType<{ size?: number; color?: string }>; color: string; bg: string }> = {
-  achievement: { Icon: Trophy, color: colors.warning, bg: colors.warningLight },
-  reminder: { Icon: AlarmClock, color: colors.accent, bg: '#FBEFE4' },
+  achievement: { Icon: Trophy, color: colors.accent, bg: colors.accentSoft },
+  reminder: { Icon: AlarmClock, color: colors.primaryLight, bg: colors.primarySoft },
   tip: { Icon: Lightbulb, color: colors.info, bg: colors.infoLight },
-  system: { Icon: Info, color: colors.primary, bg: colors.infoLight },
+  system: { Icon: Info, color: colors.primaryLight, bg: colors.primarySoft },
 }
 
 const INITIAL_NOTIFICATIONS: NotificationItem[] = [
@@ -50,22 +50,17 @@ const INITIAL_NOTIFICATIONS: NotificationItem[] = [
 const NotificationRow = memo(function NotificationRow({ item, onPress }: { item: NotificationItem; onPress: (id: string) => void }) {
   const meta = TYPE_META[item.type]
   return (
-    <button
-      type="button"
-      onClick={() => onPress(item.id)}
-      aria-label={`Notificação: ${item.title}. ${item.read ? 'Lida' : 'Não lida'}.`}
-      className={`w-full flex gap-md rounded-lg p-md shadow-sm text-left ${item.read ? 'bg-surface' : 'bg-info-light border border-info'}`}
-    >
-      <div className="w-11 h-11 rounded-pill flex items-center justify-center shrink-0" style={{ backgroundColor: meta.bg }}>
-        <meta.Icon size={20} color={meta.color} />
+    <button type="button" onClick={() => onPress(item.id)} aria-label={`Notificação: ${item.title}. ${item.read ? 'Lida' : 'Não lida'}.`} className="w-full flex gap-md rounded-lg p-md bg-surface text-left">
+      <div className="w-9 h-9 rounded-pill flex items-center justify-center shrink-0" style={{ backgroundColor: meta.bg }}>
+        <meta.Icon size={16} color={meta.color} />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-sm">
-          <p className="text-subtitle text-text-primary truncate flex-1">{item.title}</p>
-          {!item.read && <span className="w-2.5 h-2.5 rounded-pill bg-error shrink-0" />}
+          <p className="text-body-small font-medium text-text-primary truncate flex-1">{item.title}</p>
+          {!item.read && <span className="w-[7px] h-[7px] rounded-pill bg-error shrink-0" />}
         </div>
-        <p className="text-body-small text-text-secondary line-clamp-2">{item.message}</p>
-        <p className="text-caption text-text-muted mt-0.5">{item.time}</p>
+        <p className="text-caption text-text-secondary line-clamp-2 mt-0.5">{item.message}</p>
+        <p className="text-label text-text-muted mt-1">{item.time}</p>
       </div>
     </button>
   )
@@ -93,20 +88,20 @@ export default function NotificationsScreen() {
   const activeFilterLabel = useMemo(() => FILTERS.find(f => f.id === activeFilter)?.label ?? 'Todas', [activeFilter])
 
   return (
-    <div className="min-h-dvh flex flex-col" style={{ backgroundImage: `linear-gradient(180deg, ${gradients.soft.join(', ')})` }}>
+    <div className="min-h-dvh flex flex-col bg-background">
       <ScreenHeader
         title="Notificações"
         subtitle={unreadCount > 0 ? `${unreadCount} ${unreadCount === 1 ? 'não lida' : 'não lidas'}` : 'Tudo em dia'}
         rightAction={
           unreadCount > 0 ? (
-            <button type="button" onClick={markAllAsRead} aria-label="Marcar todas como lidas" className="w-9 h-9 rounded-pill bg-white/22 flex items-center justify-center">
-              <CheckCheck size={18} color="white" />
+            <button type="button" onClick={markAllAsRead} aria-label="Marcar todas como lidas" className="text-caption font-medium text-primary px-sm py-1">
+              <CheckCheck size={16} />
             </button>
           ) : undefined
         }
       />
 
-      <div className="py-md overflow-x-auto">
+      <div className="py-sm overflow-x-auto">
         <div className="flex gap-sm px-xl w-max">
           {FILTERS.map(f => {
             const active = f.id === activeFilter
@@ -116,7 +111,8 @@ export default function NotificationsScreen() {
                 type="button"
                 onClick={() => setActiveFilter(f.id)}
                 aria-pressed={active}
-                className={`px-3.5 py-sm rounded-pill border whitespace-nowrap text-caption font-semibold ${active ? 'bg-primary border-primary text-white' : 'bg-surface border-border text-text-secondary'}`}
+                className="h-7 px-md rounded-pill border whitespace-nowrap text-caption font-medium"
+                style={active ? { backgroundColor: colors.primary, borderColor: colors.primary, color: colors.textOnPrimary } : { backgroundColor: colors.surface, borderColor: colors.divider, color: colors.textSecondary }}
               >
                 {f.label}
               </button>
@@ -128,11 +124,11 @@ export default function NotificationsScreen() {
       <div className="flex-1 overflow-y-auto px-xl pb-huge flex flex-col gap-sm">
         {filtered.length === 0 ? (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="flex flex-col items-center justify-center gap-sm pt-[72px] px-xl">
-            <div className="w-20 h-20 rounded-pill bg-surface shadow-sm flex items-center justify-center mb-md">
-              <BellOff size={40} color={colors.primary} />
+            <div className="w-16 h-16 rounded-pill bg-surface flex items-center justify-center mb-md">
+              <BellOff size={30} color={colors.textMuted} />
             </div>
-            <p className="text-h3 text-text-primary">Nada por aqui</p>
-            <p className="text-body text-text-secondary text-center">Você não tem notificações {activeFilterLabel.toLowerCase() !== 'todas' ? `em "${activeFilterLabel}"` : 'no momento'}.</p>
+            <p className="text-subtitle text-text-primary">Nada por aqui</p>
+            <p className="text-body-small text-text-secondary text-center">Você não tem notificações {activeFilterLabel.toLowerCase() !== 'todas' ? `em "${activeFilterLabel}"` : 'no momento'}.</p>
           </motion.div>
         ) : (
           filtered.map(item => <NotificationRow key={item.id} item={item} onPress={markAsRead} />)

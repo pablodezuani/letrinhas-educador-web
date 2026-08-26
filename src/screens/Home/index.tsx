@@ -11,7 +11,7 @@ import { ChildModal } from '@/components/Home/ChildModal'
 import { ProfileModal } from '@/components/Home/profile-modal'
 import { Header } from '@/components/Home/header'
 import { useAuth } from '@/hooks'
-import { gradients } from '@/theme'
+import { colors } from '@/theme'
 
 export default function HomeScreen() {
   const router = useRouter()
@@ -103,10 +103,9 @@ export default function HomeScreen() {
         type="button"
         onClick={navigateToAddChild}
         aria-label="Adicionar criança"
-        className="fixed bottom-[calc(env(safe-area-inset-bottom)+30px)] right-5 w-14 h-14 rounded-pill shadow-xl flex items-center justify-center transition-transform active:scale-[0.9]"
-        style={{ backgroundImage: `linear-gradient(135deg, ${gradients.primary.join(', ')})` }}
+        className="fixed bottom-[calc(env(safe-area-inset-bottom)+30px)] right-5 w-14 h-14 rounded-pill bg-surface border border-primary flex items-center justify-center transition-transform active:scale-[0.9]"
       >
-        <Plus size={24} color="white" />
+        <Plus size={24} color={colors.primary} />
       </button>
     </div>
   )

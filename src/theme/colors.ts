@@ -1,66 +1,65 @@
 /**
- * Paleta pastel acolhedora pensada para crianças com TEA (níveis 1, 2 e 3).
- * Ported 1:1 from the React Native app's theme/colors.ts.
- * Keep in sync with the `--color-*` variables in src/index.css.
+ * Nocturne — paleta escura da nova identidade (menos brilho, sensibilidade sensorial).
+ * Substitui a paleta clara original. Keep in sync with the `--color-*` variables in globals.css.
  */
 export const colors = {
   // Base / neutros
-  background: '#FFF8F4',
-  surface: '#FFFFFF',
-  surfaceAlt: '#F6EEE6',
-  surfaceMuted: '#F1E9DF',
-  overlay: 'rgba(48, 95, 114, 0.45)',
-  overlayLight: 'rgba(48, 95, 114, 0.18)',
+  background: '#161826',
+  surface: '#232532',
+  surfaceAlt: '#2b2e3d',
+  surfaceMuted: '#0d0e16',
+  overlay: 'rgba(5, 6, 10, 0.72)',
+  overlayLight: 'rgba(5, 6, 10, 0.4)',
 
-  // Primárias (Teal suave) — marca, headers, ações
-  primary: '#305F72',
-  primaryLight: '#567B8B',
-  primaryDark: '#1F4352',
-  primarySoft: 'rgba(48, 95, 114, 0.08)',
+  // Primárias (accent Nocturne — roxo) — marca, headers, ações
+  primary: '#9184d9',
+  primaryLight: '#b5abfc',
+  primaryDark: '#796cbf',
+  primarySoft: 'rgba(181, 171, 252, 0.18)',
 
-  // Secundárias (Lilás suave) — CTA primário
-  secondary: '#CBAACB',
-  secondaryLight: '#E2CDE2',
-  secondaryDark: '#A988A9',
-  secondarySoft: 'rgba(203, 170, 203, 0.18)',
+  // Secundárias (accent-2 Nocturne) — realces, CTA secundário
+  secondary: '#a7a1db',
+  secondaryLight: '#d2cefd',
+  secondaryDark: '#7972a9',
+  secondarySoft: 'rgba(167, 161, 219, 0.18)',
 
-  // Acento (Pêssego) — destaques, badges, branding
-  accent: '#F5A97C',
-  accentLight: '#FAC7A6',
-  accentDark: '#D48660',
-  accentSoft: 'rgba(245, 169, 124, 0.18)',
+  // Acento (dourado quente) — destaques, badges, conquistas
+  accent: '#f0c368',
+  accentLight: '#f6d692',
+  accentDark: '#c99b3f',
+  accentSoft: 'rgba(240, 195, 104, 0.18)',
 
-  // Semânticos (suaves, com versão "Light" para fundos)
-  success: '#7FB77E',
-  successLight: '#E4F1E3',
-  successDark: '#5C9A5B',
+  // Semânticos (suaves, com versão translúcida para fundos escuros)
+  success: '#8fcb92',
+  successLight: 'rgba(143, 203, 146, 0.18)',
+  successDark: '#6ba86e',
 
-  warning: '#E9B44C',
-  warningLight: '#FBEED1',
-  warningDark: '#B98A2D',
+  warning: '#f0c368',
+  warningLight: 'rgba(240, 195, 104, 0.18)',
+  warningDark: '#c99b3f',
 
-  error: '#D9756B',
-  errorLight: '#FBE5E2',
-  errorDark: '#B85048',
+  error: '#e38a7e',
+  errorLight: 'rgba(227, 138, 126, 0.18)',
+  errorDark: '#c96a5c',
 
-  info: '#6DAED9',
-  infoLight: '#DBEDF7',
-  infoDark: '#4D8AB2',
+  info: '#7ebbe0',
+  infoLight: 'rgba(126, 187, 224, 0.18)',
+  infoDark: '#5a97bd',
 
   // Texto
-  textPrimary: '#305F72',
-  textSecondary: '#6B7F88',
-  textMuted: '#98A5AB',
-  textDisabled: '#C2C8CB',
-  textOnPrimary: '#FFF8F4',
-  textOnSecondary: '#FFFFFF',
-  textOnAccent: '#4A1B0C',
+  textPrimary: '#e9e9ed',
+  textSecondary: '#9397ab',
+  textMuted: '#75798c',
+  textDisabled: '#595d6c',
+  textOnPrimary: '#161826',
+  textOnSecondary: '#161826',
+  textOnAccent: '#161826',
 
   // Bordas e divisores
-  border: 'rgba(48, 95, 114, 0.12)',
-  borderStrong: 'rgba(48, 95, 114, 0.25)',
-  borderFocus: '#305F72',
-  divider: 'rgba(48, 95, 114, 0.08)',
+  border: 'rgba(233, 233, 237, 0.12)',
+  borderStrong: 'rgba(233, 233, 237, 0.24)',
+  borderFocus: '#9184d9',
+  divider: 'rgba(233, 233, 237, 0.08)',
 
   // Utilitários
   transparent: 'transparent',
@@ -69,20 +68,20 @@ export const colors = {
   shadow: '#000000',
 
   // Níveis TEA (suavizados, sem alarmismo)
-  teaLevel1: '#7FB77E',
-  teaLevel1Light: '#E4F1E3',
-  teaLevel2: '#E9B44C',
-  teaLevel2Light: '#FBEED1',
-  teaLevel3: '#D9756B',
-  teaLevel3Light: '#FBE5E2',
+  teaLevel1: '#8fcb92',
+  teaLevel1Light: 'rgba(143, 203, 146, 0.18)',
+  teaLevel2: '#f0c368',
+  teaLevel2Light: 'rgba(240, 195, 104, 0.18)',
+  teaLevel3: '#e38a7e',
+  teaLevel3Light: 'rgba(227, 138, 126, 0.18)',
 
   // Temas suaves de gênero (para personalização das crianças)
-  boy: '#6DAED9',
-  boyLight: '#DBEDF7',
-  boyDark: '#4D8AB2',
-  girl: '#E8A7BD',
-  girlLight: '#F7E0E8',
-  girlDark: '#C5879B',
+  boy: '#7ebbe0',
+  boyLight: 'rgba(126, 187, 224, 0.18)',
+  boyDark: '#5a97bd',
+  girl: '#e6a0c4',
+  girlLight: 'rgba(230, 160, 196, 0.18)',
+  girlDark: '#b97fa0',
 } as const
 
 export type ColorToken = keyof typeof colors

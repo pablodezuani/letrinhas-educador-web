@@ -3,14 +3,13 @@
 import { useCallback, useRef, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Calendar, Camera, CheckCircle2, Heart, Pencil, User, XCircle } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Camera, Check, CheckCircle2, X } from 'lucide-react'
 
 import { AlertModal, useAlertModal } from '@/components/common'
-import { Button, Input, ProgressBar } from '@/components/ui'
 import { CHILD_PALETTES, JOURNEY_STEPS } from '@/constants'
 import { usePhotoPicker } from '@/hooks'
 import { api } from '@/services/api'
-import { colors, gradients } from '@/theme'
+import { colors } from '@/theme'
 
 const CONTENT_MAX_WIDTH = 480
 
@@ -68,6 +67,10 @@ const INITIAL_DATA: ChildFormData = {
 
 const csvField = (value: string[]) => value.join(', ')
 const parseCsv = (text: string) => text.split(', ').filter(i => i.trim())
+
+const NEXT_STEPS_HINT = JOURNEY_STEPS.slice(1)
+  .map(s => s.title)
+  .join(' · ')
 
 export default function AddChildScreen() {
   const router = useRouter()
@@ -187,85 +190,79 @@ export default function AddChildScreen() {
 
   const currentStepData = JOURNEY_STEPS.find(step => step.id === currentStep)
   const isLastStep = currentStep === JOURNEY_STEPS.length
+  const progressPct = Math.round((currentStep / JOURNEY_STEPS.length) * 100)
 
   return (
-    <div className="min-h-dvh flex flex-col relative" style={{ backgroundImage: `linear-gradient(160deg, ${gradients.primary.join(', ')})` }}>
+    <div className="min-h-dvh flex flex-col bg-background">
       <div className="w-full mx-auto" style={{ maxWidth: CONTENT_MAX_WIDTH }}>
-        <div className="flex items-center gap-md px-xl pb-md pt-[calc(env(safe-area-inset-top)+10px)]">
-          <button type="button" onClick={handleBack} aria-label="Voltar" className="w-9 h-9 rounded-pill bg-white/15 flex items-center justify-center shrink-0 transition-transform active:scale-[0.92]">
-            <ArrowLeft size={20} color="white" />
+        <div className="flex items-center gap-md px-xl pb-md pt-[calc(env(safe-area-inset-top)+16px)]">
+          <button type="button" onClick={handleBack} aria-label="Voltar" className="w-9 h-9 rounded-pill bg-surface border border-border flex items-center justify-center shrink-0 text-text-primary transition-transform active:scale-[0.92]">
+            <ArrowLeft size={16} />
           </button>
 
           <div className="flex-1 min-w-0">
             <div className="flex items-baseline justify-between mb-1.5">
-              <p className="text-white text-[15px] font-semibold truncate">{currentStepData?.title}</p>
-              <span className="text-white/60 text-label shrink-0 ml-sm">
+              <p className="text-body-small font-medium text-text-primary truncate">{currentStepData?.title}</p>
+              <span className="text-label text-text-muted shrink-0 ml-sm">
                 {currentStep}/{JOURNEY_STEPS.length}
               </span>
             </div>
-            <ProgressBar value={currentStep} max={JOURNEY_STEPS.length} height={4} color={colors.white} trackColor="rgba(255,255,255,0.15)" aria-label="Progresso do cadastro" />
+            <div className="h-1 rounded-pill bg-surface-alt overflow-hidden">
+              <div className="h-full rounded-pill bg-primary transition-[width]" style={{ width: `${progressPct}%` }} />
+            </div>
           </div>
         </div>
       </div>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-xl pt-sm" style={{ paddingBottom: 110 }}>
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.25 }}
-          className="w-full mx-auto bg-white/8 rounded-xl p-xl border border-white/12"
-          style={{ maxWidth: CONTENT_MAX_WIDTH }}
-        >
+        <motion.div key={currentStep} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.25 }} className="w-full mx-auto bg-surface rounded-lg p-xl" style={{ maxWidth: CONTENT_MAX_WIDTH }}>
           {currentStep === 1 && <BasicInfoStep childData={childData} set={set} onSelectPhoto={selectPhoto} />}
           {currentStep === 2 && (
-            <CategoryStep emoji="👤" title="Informações Pessoais">
-              <ElegantTextArea label="Sobre mim" placeholder="Conte sobre a personalidade da criança..." value={childData.aboutMe} onChange={v => set('aboutMe', v)} />
-              <ElegantTextArea label="Interesses especiais" placeholder="Quais são os interesses especiais?" value={csvField(childData.specialInterests)} onChange={v => set('specialInterests', parseCsv(v))} />
-              <ElegantTextArea label="Rotina" placeholder="Descreva a rotina diária..." value={childData.routine} onChange={v => set('routine', v)} />
-              <ElegantTextArea label="Comunicação" placeholder="Como a criança se comunica?" value={childData.communication} onChange={v => set('communication', v)} />
+            <CategoryStep title="Informações pessoais">
+              <FieldTextArea label="Sobre mim" placeholder="Conte sobre a personalidade da criança..." value={childData.aboutMe} onChange={v => set('aboutMe', v)} />
+              <FieldTextArea label="Interesses especiais" placeholder="Quais são os interesses especiais?" value={csvField(childData.specialInterests)} onChange={v => set('specialInterests', parseCsv(v))} />
+              <FieldTextArea label="Rotina" placeholder="Descreva a rotina diária..." value={childData.routine} onChange={v => set('routine', v)} />
+              <FieldTextArea label="Comunicação" placeholder="Como a criança se comunica?" value={childData.communication} onChange={v => set('communication', v)} />
             </CategoryStep>
           )}
           {currentStep === 3 && (
-            <CategoryStep emoji="😊" title="Comportamento">
-              <ElegantTextArea label="O que gosta" placeholder="O que a criança mais gosta?" value={csvField(childData.likes)} onChange={v => set('likes', parseCsv(v))} />
-              <ElegantTextArea label="O que não gosta" placeholder="O que a criança não gosta?" value={csvField(childData.dislikes)} onChange={v => set('dislikes', parseCsv(v))} />
-              <ElegantTextArea label="Habilidades" placeholder="Principais habilidades..." value={csvField(childData.skills)} onChange={v => set('skills', parseCsv(v))} />
-              <ElegantTextArea label="Necessidades sensoriais" placeholder="Necessidades sensoriais..." value={childData.sensoryNeeds} onChange={v => set('sensoryNeeds', v)} />
+            <CategoryStep title="Comportamento">
+              <FieldTextArea label="O que gosta" placeholder="O que a criança mais gosta?" value={csvField(childData.likes)} onChange={v => set('likes', parseCsv(v))} />
+              <FieldTextArea label="O que não gosta" placeholder="O que a criança não gosta?" value={csvField(childData.dislikes)} onChange={v => set('dislikes', parseCsv(v))} />
+              <FieldTextArea label="Habilidades" placeholder="Principais habilidades..." value={csvField(childData.skills)} onChange={v => set('skills', parseCsv(v))} />
+              <FieldTextArea label="Necessidades sensoriais" placeholder="Necessidades sensoriais..." value={childData.sensoryNeeds} onChange={v => set('sensoryNeeds', v)} />
             </CategoryStep>
           )}
           {currentStep === 4 && (
-            <CategoryStep emoji="🤝" title="Como Ajudar">
-              <ElegantTextArea label="Como ajudar" placeholder="Como posso ajudar no dia a dia?" value={childData.howToHelp} onChange={v => set('howToHelp', v)} />
-              <ElegantTextArea label="Quando frustrada" placeholder="O que fazer quando frustrada?" value={childData.whenFrustrated} onChange={v => set('whenFrustrated', v)} />
-              <ElegantTextArea label="Precisa de atenção" placeholder="Como demonstra que precisa de atenção?" value={childData.whenNeedsAttention} onChange={v => set('whenNeedsAttention', v)} />
-              <ElegantTextArea label="Dificuldades" placeholder="Principais dificuldades..." value={csvField(childData.difficulties)} onChange={v => set('difficulties', parseCsv(v))} />
+            <CategoryStep title="Como ajudar">
+              <FieldTextArea label="Como ajudar" placeholder="Como posso ajudar no dia a dia?" value={childData.howToHelp} onChange={v => set('howToHelp', v)} />
+              <FieldTextArea label="Quando frustrada" placeholder="O que fazer quando frustrada?" value={childData.whenFrustrated} onChange={v => set('whenFrustrated', v)} />
+              <FieldTextArea label="Precisa de atenção" placeholder="Como demonstra que precisa de atenção?" value={childData.whenNeedsAttention} onChange={v => set('whenNeedsAttention', v)} />
+              <FieldTextArea label="Dificuldades" placeholder="Principais dificuldades..." value={csvField(childData.difficulties)} onChange={v => set('difficulties', parseCsv(v))} />
             </CategoryStep>
           )}
           {currentStep === 5 && (
-            <CategoryStep emoji="🏥" title="Saúde">
-              <ElegantTextArea label="Informações médicas" placeholder="Informações médicas relevantes..." value={childData.medicalInfo} onChange={v => set('medicalInfo', v)} />
-              <ElegantTextArea label="Informações TEA" placeholder="Detalhes sobre o TEA..." value={childData.autismInfo} onChange={v => set('autismInfo', v)} />
-              <ElegantTextArea label="Medicamentos" placeholder="Medicamentos em uso..." value={csvField(childData.medications)} onChange={v => set('medications', parseCsv(v))} />
-              <ElegantTextArea label="Alergias" placeholder="Alergias ou restrições..." value={csvField(childData.allergies)} onChange={v => set('allergies', parseCsv(v))} />
+            <CategoryStep title="Saúde">
+              <FieldTextArea label="Informações médicas" placeholder="Informações médicas relevantes..." value={childData.medicalInfo} onChange={v => set('medicalInfo', v)} />
+              <FieldTextArea label="Informações TEA" placeholder="Detalhes sobre o TEA..." value={childData.autismInfo} onChange={v => set('autismInfo', v)} />
+              <FieldTextArea label="Medicamentos" placeholder="Medicamentos em uso..." value={csvField(childData.medications)} onChange={v => set('medications', parseCsv(v))} />
+              <FieldTextArea label="Alergias" placeholder="Alergias ou restrições..." value={csvField(childData.allergies)} onChange={v => set('allergies', parseCsv(v))} />
             </CategoryStep>
           )}
         </motion.div>
       </div>
 
       <div className="fixed left-5 right-5 z-10" style={{ bottom: 'calc(env(safe-area-inset-bottom) + 25px)', maxWidth: CONTENT_MAX_WIDTH, marginInline: 'auto' }}>
-        <Button
-          label={isLoading ? 'Salvando...' : isLastStep ? 'Finalizar' : 'Continuar'}
+        <button
+          type="button"
           onClick={handleNext}
-          disabled={!canProceed()}
-          loading={isLoading}
-          fullWidth
-          size="lg"
-          variant="gradient"
-          gradient={gradients.success}
-          icon={isLastStep ? <CheckCircle2 size={22} /> : <ArrowRight size={22} />}
-          iconPosition="right"
-        />
+          disabled={!canProceed() || isLoading}
+          className="w-full h-[52px] rounded-pill border border-primary text-primary bg-background flex items-center justify-center gap-sm text-button transition-transform active:scale-[0.98] disabled:opacity-45"
+        >
+          {isLoading ? 'Salvando...' : isLastStep ? 'Finalizar' : 'Continuar'}
+          {!isLoading && (isLastStep ? <CheckCircle2 size={20} /> : <ArrowRight size={20} />)}
+        </button>
+        {!isLastStep && <p className="text-center text-label text-text-disabled mt-sm">Próximas etapas: {NEXT_STEPS_HINT}</p>}
       </div>
 
       <AlertModal visible={alert.state.visible} onClose={alert.hide} title={alert.state.title} message={alert.state.message} variant={alert.state.variant} actions={alert.state.actions} autoHideMs={alert.state.autoHideMs} />
@@ -273,13 +270,11 @@ export default function AddChildScreen() {
   )
 }
 
-function CategoryStep({ emoji, title, children }: { emoji: string; title: string; children: ReactNode }) {
+function CategoryStep({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="flex flex-col items-center">
-      <p className="text-white text-[18px] font-semibold mb-5 text-center">
-        {emoji} {title}
-      </p>
-      <div className="w-full flex flex-col gap-lg mb-6">{children}</div>
+      <p className="text-subtitle text-text-primary mb-lg text-center">{title}</p>
+      <div className="w-full flex flex-col gap-lg mb-1">{children}</div>
     </div>
   )
 }
@@ -287,134 +282,129 @@ function CategoryStep({ emoji, title, children }: { emoji: string; title: string
 function BasicInfoStep({ childData, set, onSelectPhoto }: { childData: ChildFormData; set: <K extends keyof ChildFormData>(key: K, value: ChildFormData[K]) => void; onSelectPhoto: () => void }) {
   return (
     <>
-      <div className="flex justify-center mb-xxl">
-        <button type="button" onClick={onSelectPhoto} aria-label="Selecionar foto" className="relative w-[90px] h-[90px] transition-transform active:scale-[0.96]">
-          <span className="block w-full h-full rounded-pill overflow-hidden border-2 border-white/30">
-            {childData.photo ? (
-              <img src={childData.photo} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <span className="w-full h-full flex items-center justify-center" style={{ backgroundImage: `linear-gradient(135deg, ${gradients.girl.join(', ')})` }}>
-                <Camera size={28} color="white" />
-              </span>
-            )}
+      <div className="flex justify-center mb-xl">
+        <button type="button" onClick={onSelectPhoto} aria-label="Selecionar foto" className="relative w-[88px] h-[88px] transition-transform active:scale-[0.96]">
+          <span className="block w-full h-full rounded-pill overflow-hidden bg-primary-soft flex items-center justify-center">
+            {childData.photo ? <img src={childData.photo} alt="" className="w-full h-full object-cover" /> : <Camera size={26} className="text-primary-light" />}
           </span>
-          <span className="absolute -bottom-0.5 -right-0.5 w-[26px] h-[26px] rounded-pill bg-black/60 border-2 border-white/25 flex items-center justify-center">
-            <Pencil size={14} color="white" />
+          <span className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-pill bg-primary flex items-center justify-center">
+            <Camera size={12} color={colors.textOnPrimary} />
           </span>
         </button>
       </div>
 
-      <div className="flex flex-col gap-none mb-lg">
-        <Input tone="dark" label="Nome da criança *" placeholder="Nome completo" value={childData.name} onChange={e => set('name', e.target.value)} icon={<User size={18} color="rgba(255,248,244,0.7)" />} />
-        <Input tone="dark" label="Apelido" placeholder="Como ela gosta de ser chamada (opcional)" value={childData.nickname} onChange={e => set('nickname', e.target.value)} icon={<Heart size={18} color="rgba(255,248,244,0.7)" />} />
-
-        <div className="flex gap-md items-start">
-          <Input
-            tone="dark"
-            label="Idade"
-            placeholder="Ex: 6"
-            value={childData.age}
-            onChange={e => set('age', e.target.value.replace(/\D/g, ''))}
-            icon={<Calendar size={18} color="rgba(255,248,244,0.7)" />}
-            inputMode="numeric"
-            containerClassName="flex-1"
+      <div className="flex flex-col gap-lg mb-lg">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-caption text-text-secondary">Nome da criança *</label>
+          <input
+            className="bg-surface-alt border border-divider rounded-md px-md py-sm text-body text-text-primary outline-none focus-visible:border-primary"
+            placeholder="Ex: Maria Eduarda"
+            value={childData.name}
+            onChange={e => set('name', e.target.value)}
           />
+        </div>
 
-          <div className="flex-1 mb-md">
-            <p className="text-label mb-xs uppercase tracking-[1.2px] text-[rgba(255,248,244,0.65)]">Gênero</p>
-            <div className="flex h-12 rounded-md overflow-hidden border border-white/18">
+        <div className="flex flex-col gap-1.5">
+          <label className="text-caption text-text-secondary">Apelido (opcional)</label>
+          <input
+            className="bg-surface-alt border border-divider rounded-md px-md py-sm text-body text-text-primary outline-none focus-visible:border-primary"
+            placeholder="Ex: Mari"
+            value={childData.nickname}
+            onChange={e => set('nickname', e.target.value)}
+          />
+        </div>
+
+        <div className="flex gap-md">
+          <div className="flex-1 flex flex-col gap-1.5">
+            <label className="text-caption text-text-secondary">Idade</label>
+            <input
+              className="bg-surface-alt border border-divider rounded-md px-md py-sm text-body text-text-primary outline-none focus-visible:border-primary"
+              placeholder="7"
+              inputMode="numeric"
+              value={childData.age}
+              onChange={e => set('age', e.target.value.replace(/\D/g, ''))}
+            />
+          </div>
+
+          <div className="flex-1 flex flex-col gap-1.5">
+            <label className="text-caption text-text-secondary">Gênero</label>
+            <div className="h-9 flex rounded-md border border-divider overflow-hidden">
               <button
                 type="button"
                 onClick={() => set('gender', 'male')}
-                className="flex-1 min-w-0 flex items-center justify-center gap-1 px-1 border-r border-white/18 transition-colors"
-                style={{ backgroundColor: childData.gender === 'male' ? colors.boy : 'rgba(255,255,255,0.08)' }}
+                className="flex-1 flex items-center justify-center text-label font-medium"
+                style={childData.gender === 'male' ? { backgroundColor: colors.primary, color: colors.textOnPrimary } : { color: colors.textSecondary }}
               >
-                <span className="shrink-0 text-[13px]" style={{ color: childData.gender === 'male' ? '#fff' : 'rgba(255,255,255,0.6)' }}>
-                  ♂
-                </span>
-                <span className="text-[11px] font-medium truncate" style={{ color: childData.gender === 'male' ? '#fff' : 'rgba(255,255,255,0.6)' }}>
-                  Menino
-                </span>
+                Menino
               </button>
               <button
                 type="button"
                 onClick={() => set('gender', 'female')}
-                className="flex-1 min-w-0 flex items-center justify-center gap-1 px-1 transition-colors"
-                style={{ backgroundColor: childData.gender === 'female' ? colors.girl : 'rgba(255,255,255,0.08)' }}
+                className="flex-1 flex items-center justify-center text-label font-medium border-l border-divider"
+                style={childData.gender === 'female' ? { backgroundColor: colors.primary, color: colors.textOnPrimary } : { color: colors.textSecondary }}
               >
-                <span className="shrink-0 text-[13px]" style={{ color: childData.gender === 'female' ? '#fff' : 'rgba(255,255,255,0.6)' }}>
-                  ♀
-                </span>
-                <span className="text-[11px] font-medium truncate" style={{ color: childData.gender === 'female' ? '#fff' : 'rgba(255,255,255,0.6)' }}>
-                  Menina
-                </span>
+                Menina
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="pt-lg border-t border-white/12">
-        <p className="text-white text-[17px] font-semibold mb-3 text-center">Diagnóstico TEA</p>
-
-        <div className="flex flex-col gap-2.5 mb-4">
+      <div className="flex flex-col gap-sm">
+        <span className="text-caption font-medium text-text-secondary">Diagnóstico TEA</span>
+        <div className="flex gap-sm">
           <button
             type="button"
             onClick={() => set('hasAutism', 'yes')}
-            className="flex items-center p-3 rounded-xl border transition-colors active:scale-[0.98]"
-            style={{
-              backgroundColor: childData.hasAutism === 'yes' ? colors.primary : 'rgba(255,255,255,0.08)',
-              borderColor: childData.hasAutism === 'yes' ? colors.primary : 'rgba(255,255,255,0.18)',
-            }}
+            className="flex-1 flex items-center gap-sm p-md rounded-md border-[1.5px] text-left transition-colors"
+            style={childData.hasAutism === 'yes' ? { borderColor: colors.primary, backgroundColor: colors.primarySoft } : { borderColor: colors.divider, backgroundColor: 'transparent' }}
           >
-            <CheckCircle2 size={22} color={childData.hasAutism === 'yes' ? '#fff' : 'rgba(255,255,255,0.6)'} className="mr-3 shrink-0" />
-            <span className="text-[15px] font-medium" style={{ color: childData.hasAutism === 'yes' ? '#fff' : 'rgba(255,255,255,0.8)' }}>
-              Sim, possui TEA
+            <Check size={16} color={childData.hasAutism === 'yes' ? colors.primaryLight : colors.textMuted} />
+            <span className="text-body-small font-medium" style={{ color: childData.hasAutism === 'yes' ? colors.textPrimary : colors.textSecondary }}>
+              Possui TEA
             </span>
           </button>
-
           <button
             type="button"
             onClick={() => set('hasAutism', 'no')}
-            className="flex items-center p-3 rounded-xl border transition-colors active:scale-[0.98]"
-            style={{
-              backgroundColor: childData.hasAutism === 'no' ? colors.primary : 'rgba(255,255,255,0.08)',
-              borderColor: childData.hasAutism === 'no' ? colors.primary : 'rgba(255,255,255,0.18)',
-            }}
+            className="flex-1 flex items-center gap-sm p-md rounded-md border-[1.5px] text-left transition-colors"
+            style={childData.hasAutism === 'no' ? { borderColor: colors.primary, backgroundColor: colors.primarySoft } : { borderColor: colors.divider, backgroundColor: 'transparent' }}
           >
-            <XCircle size={22} color={childData.hasAutism === 'no' ? '#fff' : 'rgba(255,255,255,0.6)'} className="mr-3 shrink-0" />
-            <span className="text-[15px] font-medium" style={{ color: childData.hasAutism === 'no' ? '#fff' : 'rgba(255,255,255,0.8)' }}>
-              Não possui TEA
+            <X size={16} color={childData.hasAutism === 'no' ? colors.primaryLight : colors.textMuted} />
+            <span className="text-body-small font-medium" style={{ color: childData.hasAutism === 'no' ? colors.textPrimary : colors.textSecondary }}>
+              Não possui
             </span>
           </button>
         </div>
 
         {childData.hasAutism === 'yes' && (
-          <div>
-            <p className="text-white text-[15px] font-medium mb-2.5 text-center">Nível de Suporte</p>
-            <div className="flex gap-2">
+          <div className="flex flex-col gap-sm mt-1">
+            <span className="text-caption text-text-muted">Nível de suporte</span>
+            <div className="flex gap-sm">
               {(
                 [
                   { key: '1', label: 'Nível 1', desc: 'Apoio', color: colors.teaLevel1 },
-                  { key: '2', label: 'Nível 2', desc: 'Apoio substancial', color: colors.teaLevel2 },
-                  { key: '3', label: 'Nível 3', desc: 'Apoio muito substancial', color: colors.teaLevel3 },
+                  { key: '2', label: 'Nível 2', desc: 'Substancial', color: colors.teaLevel2 },
+                  { key: '3', label: 'Nível 3', desc: 'Muito subst.', color: colors.teaLevel3 },
                 ] as const
-              ).map(level => (
-                <button key={level.key} type="button" onClick={() => set('autismLevel', level.key)} className="flex-1 rounded-[10px] overflow-hidden transition-transform active:scale-[0.97]">
-                  <span
-                    className="flex flex-col items-center p-3 rounded-[10px] transition-colors"
-                    style={{ backgroundColor: childData.autismLevel === level.key ? level.color : 'rgba(255,255,255,0.08)' }}
+              ).map(level => {
+                const active = childData.autismLevel === level.key
+                return (
+                  <button
+                    key={level.key}
+                    type="button"
+                    onClick={() => set('autismLevel', level.key)}
+                    className="flex-1 flex flex-col items-center gap-1 p-sm rounded-md border-[1.5px]"
+                    style={{ borderColor: active ? level.color : colors.divider }}
                   >
-                    <span className="w-2.5 h-2.5 rounded-pill mb-1.5" style={{ backgroundColor: childData.autismLevel === level.key ? '#fff' : 'rgba(255,255,255,0.3)' }} />
-                    <span className="text-[13px] font-semibold mb-0.5" style={{ color: childData.autismLevel === level.key ? '#fff' : 'rgba(255,255,255,0.8)' }}>
+                    <span className="w-2 h-2 rounded-pill" style={{ backgroundColor: level.color }} />
+                    <span className="text-caption font-semibold" style={{ color: active ? colors.textPrimary : colors.textSecondary }}>
                       {level.label}
                     </span>
-                    <span className="text-[10px] text-center" style={{ color: childData.autismLevel === level.key ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.5)' }}>
-                      {level.desc}
-                    </span>
-                  </span>
-                </button>
-              ))}
+                    <span className="text-label text-text-muted">{level.desc}</span>
+                  </button>
+                )
+              })}
             </div>
           </div>
         )}
@@ -423,26 +413,17 @@ function BasicInfoStep({ childData, set, onSelectPhoto }: { childData: ChildForm
   )
 }
 
-function ElegantTextArea({ label, placeholder, value, onChange }: { label: string; placeholder: string; value: string; onChange: (v: string) => void }) {
-  const [isFocused, setIsFocused] = useState(false)
-
+function FieldTextArea({ label, placeholder, value, onChange }: { label: string; placeholder: string; value: string; onChange: (v: string) => void }) {
   return (
-    <div>
-      <p className="text-label mb-xs uppercase tracking-[1.2px] text-[rgba(255,248,244,0.65)]">{label}</p>
-      <div
-        className="rounded-md border p-3 transition-colors"
-        style={{ backgroundColor: 'rgba(255,255,255,0.08)', borderColor: isFocused ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.18)', borderWidth: isFocused ? 1.5 : 1 }}
-      >
-        <textarea
-          placeholder={placeholder}
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          rows={3}
-          className="w-full min-h-[70px] bg-transparent outline-none text-white text-[15px] placeholder:text-white/45 resize-none"
-        />
-      </div>
+    <div className="flex flex-col gap-1.5">
+      <label className="text-caption text-text-secondary">{label}</label>
+      <textarea
+        placeholder={placeholder}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        rows={3}
+        className="bg-surface-alt border border-divider rounded-md px-md py-sm text-body text-text-primary outline-none resize-none focus-visible:border-primary"
+      />
     </div>
   )
 }

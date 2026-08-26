@@ -2,11 +2,11 @@
 
 import { useCallback, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Camera, CheckCircle2, Mail, ShieldCheck, User } from 'lucide-react'
+import { Camera, CheckCircle2, ShieldCheck } from 'lucide-react'
 
 import { AlertModal, ScreenHeader, useAlertModal } from '@/components/common'
 import { useAuth, usePhotoPicker } from '@/hooks'
-import { colors, gradients } from '@/theme'
+import { colors } from '@/theme'
 
 function isValidEmail(email: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
@@ -93,69 +93,75 @@ export default function EditProfileScreen() {
   const disabled = !hasChanges || saving
 
   return (
-    <div className="min-h-dvh flex flex-col" style={{ backgroundImage: `linear-gradient(180deg, ${gradients.soft.join(', ')})` }}>
+    <div className="min-h-dvh flex flex-col bg-background">
       <ScreenHeader
         title="Editar perfil"
-        subtitle="Atualize suas informações"
         rightAction={
+          <button type="button" onClick={handleSave} disabled={disabled} aria-label="Salvar alterações" className="text-caption font-medium text-primary px-sm py-1 disabled:opacity-40">
+            {saving ? '...' : 'Salvar'}
+          </button>
+        }
+      />
+
+      <div className="flex-1 overflow-y-auto px-xl pb-huge flex flex-col gap-lg">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="flex flex-col items-center mt-sm">
+          <button type="button" onClick={handleChangePhoto} aria-label="Alterar foto de perfil" className="relative w-24 h-24">
+            {photoUri ? (
+              <img src={photoUri} alt="" className="w-24 h-24 rounded-pill object-cover" />
+            ) : (
+              <div className="w-24 h-24 rounded-pill flex items-center justify-center bg-primary-soft">
+                <span className="text-[28px] font-medium text-primary-light">{initial}</span>
+              </div>
+            )}
+            <span className="absolute right-0 bottom-0 w-7 h-7 rounded-pill bg-primary flex items-center justify-center">
+              <Camera size={14} color={colors.textOnPrimary} />
+            </span>
+          </button>
+          <p className="text-label text-text-muted mt-sm">Toque na foto para alterar</p>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="bg-surface rounded-lg p-lg flex flex-col gap-lg">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-caption text-text-secondary">Nome completo</label>
+            <input
+              className="bg-surface-alt border border-divider rounded-md px-md py-sm text-body text-text-primary outline-none focus-visible:border-primary"
+              value={name}
+              onChange={e => setName(e.target.value)}
+              placeholder="Digite seu nome"
+            />
+          </div>
+
+          <div className="h-px bg-divider" />
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-caption text-text-secondary">Email</label>
+            <input
+              className="bg-surface-alt border border-divider rounded-md px-md py-sm text-body text-text-primary outline-none focus-visible:border-primary"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="seu@email.com"
+              type="email"
+              autoCapitalize="none"
+            />
+          </div>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} className="flex items-center gap-sm bg-info-light rounded-md p-md">
+          <ShieldCheck size={18} color={colors.info} className="shrink-0" />
+          <p className="flex-1 text-caption text-text-secondary">Seus dados são privados e ficam salvos com segurança.</p>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
           <button
             type="button"
             onClick={handleSave}
             disabled={disabled}
             aria-label="Salvar alterações"
-            className="px-md py-sm rounded-pill bg-white/20 border border-white/32 disabled:opacity-45"
+            className="w-full h-[50px] rounded-pill border flex items-center justify-center gap-sm text-button transition-transform active:scale-[0.98] disabled:opacity-45"
+            style={{ borderColor: disabled ? colors.divider : colors.primary, color: disabled ? colors.textMuted : colors.primary }}
           >
-            <span className="text-caption text-white font-bold">{saving ? '...' : 'Salvar'}</span>
-          </button>
-        }
-      />
-
-      <div className="flex-1 overflow-y-auto p-xl pb-huge flex flex-col gap-lg">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="flex flex-col items-center mt-md">
-          <button type="button" onClick={handleChangePhoto} aria-label="Alterar foto de perfil" className="relative w-32 h-32 shadow-lg rounded-pill">
-            {photoUri ? (
-              <img src={photoUri} alt="" className="w-32 h-32 rounded-pill object-cover border-[3px] border-white" />
-            ) : (
-              <div className="w-32 h-32 rounded-pill flex items-center justify-center border-[3px] border-white" style={{ backgroundImage: `linear-gradient(135deg, ${gradients.primary.join(', ')})` }}>
-                <span className="text-white text-[54px]" style={{ fontFamily: 'var(--font-display)' }}>
-                  {initial}
-                </span>
-              </div>
-            )}
-            <span className="absolute right-1 bottom-1 w-[34px] h-[34px] rounded-pill bg-accent border-2 border-white flex items-center justify-center">
-              <Camera size={16} color={colors.white} />
-            </span>
-          </button>
-          <p className="text-caption text-text-secondary mt-sm">Toque na foto para alterar</p>
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="bg-surface rounded-lg p-lg shadow-sm">
-          <p className="text-label text-text-secondary mb-sm">Nome completo</p>
-          <div className="flex items-center gap-sm bg-surface-alt rounded-md px-md py-md">
-            <User size={18} color={colors.primary} />
-            <input className="flex-1 bg-transparent outline-none text-body text-text-primary placeholder:text-text-muted" value={name} onChange={e => setName(e.target.value)} placeholder="Digite seu nome" />
-          </div>
-
-          <div className="h-px bg-divider my-lg" />
-
-          <p className="text-label text-text-secondary mb-sm">Email</p>
-          <div className="flex items-center gap-sm bg-surface-alt rounded-md px-md py-md">
-            <Mail size={18} color={colors.primary} />
-            <input className="flex-1 bg-transparent outline-none text-body text-text-primary placeholder:text-text-muted" value={email} onChange={e => setEmail(e.target.value)} placeholder="seu@email.com" type="email" autoCapitalize="none" />
-          </div>
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} className="flex items-center gap-sm bg-info-light rounded-md p-md">
-          <ShieldCheck size={20} color={colors.primary} />
-          <p className="flex-1 text-caption text-primary-dark">Seus dados são privados e ficam salvos com segurança.</p>
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
-          <button type="button" onClick={handleSave} disabled={disabled} aria-label="Salvar alterações" className="w-full rounded-lg overflow-hidden shadow-md transition-transform active:scale-[0.98] disabled:opacity-60">
-            <span className="flex items-center justify-center gap-sm py-md" style={{ backgroundImage: disabled ? `linear-gradient(90deg, ${colors.textMuted}, ${colors.textMuted})` : `linear-gradient(90deg, ${gradients.primary.join(', ')})` }}>
-              <CheckCircle2 size={20} color={colors.white} />
-              <span className="text-button text-white">{saving ? 'Salvando...' : 'Salvar alterações'}</span>
-            </span>
+            <CheckCircle2 size={18} />
+            {saving ? 'Salvando...' : 'Salvar alterações'}
           </button>
         </motion.div>
       </div>

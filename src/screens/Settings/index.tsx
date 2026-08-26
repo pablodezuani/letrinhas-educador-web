@@ -7,7 +7,7 @@ import { Camera, Leaf, Moon, Music, PauseCircle, RefreshCw, Volume2 } from 'luci
 import { AlertModal, ScreenHeader, useAlertModal } from '@/components/common'
 import { useSettings } from '@/hooks'
 import type { AppSettings } from '@/contexts/SettingsContext'
-import { colors, gradients } from '@/theme'
+import { colors } from '@/theme'
 
 interface SettingRowProps {
   Icon: ComponentType<{ size?: number; color?: string }>
@@ -16,30 +16,33 @@ interface SettingRowProps {
   title: string
   description?: string
   value: boolean
-  onToggle: () => void
+  onToggle?: () => void
   last?: boolean
 }
 
 const SettingRow = memo(function SettingRow({ Icon, iconColor, iconBg, title, description, value, onToggle, last }: SettingRowProps) {
+  const locked = !onToggle
   return (
-    <div className={`flex items-center gap-md px-lg py-md ${!last ? 'border-b border-divider' : ''}`}>
-      <div className="w-10 h-10 rounded-pill flex items-center justify-center shrink-0" style={{ backgroundColor: iconBg }}>
-        <Icon size={20} color={iconColor} />
+    <div className={`flex items-center gap-md px-lg py-md ${!last ? 'border-b border-divider' : ''} ${locked ? 'opacity-60' : ''}`}>
+      <div className="w-9 h-9 rounded-pill flex items-center justify-center shrink-0" style={{ backgroundColor: iconBg }}>
+        <Icon size={17} color={iconColor} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-subtitle text-text-primary">{title}</p>
-        {description ? <p className="text-caption text-text-secondary mt-0.5">{description}</p> : null}
+        <p className="text-body text-text-primary">{title}</p>
+        {description ? <p className="text-caption text-text-muted mt-0.5">{description}</p> : null}
       </div>
       <button
         type="button"
         role="switch"
         aria-checked={value}
         aria-label={title}
+        aria-disabled={locked}
         onClick={onToggle}
-        className="w-[46px] h-[26px] rounded-pill shrink-0 relative transition-colors"
-        style={{ backgroundColor: value ? colors.primaryLight : colors.border }}
+        disabled={locked}
+        className="w-[38px] h-[22px] rounded-pill shrink-0 relative transition-colors disabled:cursor-default"
+        style={{ backgroundColor: value ? colors.primary : colors.divider }}
       >
-        <span className="absolute top-0.5 w-[22px] h-[22px] rounded-pill bg-white shadow-sm transition-[left]" style={{ left: value ? 22 : 2 }} />
+        <span className="absolute top-0.5 w-[18px] h-[18px] rounded-pill bg-white shadow-sm transition-[left]" style={{ left: value ? 18 : 2 }} />
       </button>
     </div>
   )
@@ -75,25 +78,25 @@ export default function SettingsScreen() {
   }, [alert, reset])
 
   return (
-    <div className="min-h-dvh flex flex-col" style={{ backgroundImage: `linear-gradient(180deg, ${gradients.soft.join(', ')})` }}>
+    <div className="min-h-dvh flex flex-col bg-background">
       <ScreenHeader title="Configurações" subtitle="Ajuste a experiência do app" />
 
-      <div className="flex-1 overflow-y-auto p-xl pb-huge">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}>
-          <p className="text-label text-text-secondary ml-xs mb-sm mt-md">Aparência</p>
-          <div className="bg-surface rounded-lg overflow-hidden shadow-sm">
-            <SettingRow Icon={Moon} iconColor={colors.primary} iconBg={colors.infoLight} title="Modo escuro" description="Interface com fundo escuro para reduzir o brilho" value={settings.darkMode} onToggle={handleToggle('darkMode')} last />
+      <div className="flex-1 overflow-y-auto px-xl pb-huge flex flex-col gap-lg">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="flex flex-col gap-sm">
+          <p className="text-label text-text-muted ml-xs">Aparência</p>
+          <div className="bg-surface rounded-lg overflow-hidden">
+            <SettingRow Icon={Moon} iconColor={colors.primaryLight} iconBg={colors.primarySoft} title="Modo escuro" description="Ativado por padrão na nova identidade" value last />
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
-          <p className="text-label text-text-secondary ml-xs mb-sm mt-md">Notificações</p>
-          <div className="bg-surface rounded-lg overflow-hidden shadow-sm">
-            <SettingRow Icon={Music} iconColor={colors.accent} iconBg="#FBEFE4" title="Notificações" description="Receba avisos de atividades e conquistas" value={settings.notificationsEnabled} onToggle={handleToggle('notificationsEnabled')} />
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="flex flex-col gap-sm">
+          <p className="text-label text-text-muted ml-xs">Notificações</p>
+          <div className="bg-surface rounded-lg overflow-hidden">
+            <SettingRow Icon={Music} iconColor={colors.accent} iconBg={colors.accentSoft} title="Notificações" description="Receba avisos de atividades e conquistas" value={settings.notificationsEnabled} onToggle={handleToggle('notificationsEnabled')} />
             <SettingRow
               Icon={Music}
               iconColor={colors.accent}
-              iconBg="#FBEFE4"
+              iconBg={colors.accentSoft}
               title="Som de notificação"
               description="Tocar som ao chegar uma notificação"
               value={settings.notificationSound && settings.notificationsEnabled}
@@ -103,12 +106,12 @@ export default function SettingsScreen() {
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.25 }}>
-          <p className="text-label text-text-secondary ml-xs mb-sm mt-md">Acessibilidade</p>
-          <div className="bg-surface rounded-lg overflow-hidden shadow-sm">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.25 }} className="flex flex-col gap-sm">
+          <p className="text-label text-text-muted ml-xs">Acessibilidade</p>
+          <div className="bg-surface rounded-lg overflow-hidden">
             <SettingRow
               Icon={Leaf}
-              iconColor={colors.successDark}
+              iconColor={colors.success}
               iconBg={colors.successLight}
               title="Modo baixo estímulo"
               description="Reduz cores fortes, gradientes e celebrações. Recomendado para crianças com sensibilidade sensorial."
@@ -117,7 +120,7 @@ export default function SettingsScreen() {
             />
             <SettingRow
               Icon={PauseCircle}
-              iconColor={colors.infoDark}
+              iconColor={colors.info}
               iconBg={colors.infoLight}
               title="Reduzir animações"
               description="Diminui ou desativa transições e movimentos da interface"
@@ -128,18 +131,23 @@ export default function SettingsScreen() {
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
-          <p className="text-label text-text-secondary ml-xs mb-sm mt-md">Permissões</p>
-          <div className="bg-surface rounded-lg overflow-hidden shadow-sm">
-            <SettingRow Icon={Volume2} iconColor={colors.secondaryDark} iconBg={colors.secondaryLight} title="Som do app" description="Sons e feedback sonoro nos mini-jogos" value={settings.soundEnabled} onToggle={handleToggle('soundEnabled')} />
-            <SettingRow Icon={Camera} iconColor={colors.primary} iconBg={colors.infoLight} title="Câmera" description="Permitir usar a câmera para foto da criança" value={settings.cameraEnabled} onToggle={handleToggle('cameraEnabled')} last />
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }} className="flex flex-col gap-sm">
+          <p className="text-label text-text-muted ml-xs">Permissões</p>
+          <div className="bg-surface rounded-lg overflow-hidden">
+            <SettingRow Icon={Volume2} iconColor={colors.secondary} iconBg={colors.secondarySoft} title="Som do app" description="Sons e feedback sonoro nos mini-jogos" value={settings.soundEnabled} onToggle={handleToggle('soundEnabled')} />
+            <SettingRow Icon={Camera} iconColor={colors.primaryLight} iconBg={colors.primarySoft} title="Câmera" description="Permitir usar a câmera para foto da criança" value={settings.cameraEnabled} onToggle={handleToggle('cameraEnabled')} last />
           </div>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
-          <button type="button" onClick={handleReset} aria-label="Restaurar configurações padrão" className="w-full flex items-center justify-center gap-sm bg-error-light rounded-lg py-3.5 mt-xl">
-            <RefreshCw size={18} color={colors.error} />
-            <span className="text-button text-error">Restaurar padrões</span>
+          <button
+            type="button"
+            onClick={handleReset}
+            aria-label="Restaurar configurações padrão"
+            className="w-full flex items-center justify-center gap-sm border border-error text-error rounded-pill h-11 mt-xs"
+          >
+            <RefreshCw size={16} />
+            <span className="text-button-small">Restaurar padrões</span>
           </button>
         </motion.div>
       </div>

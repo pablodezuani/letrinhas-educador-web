@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from 'next'
-import { Nunito, Pacifico } from 'next/font/google'
+import { Inter, Pacifico } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
 
-const nunito = Nunito({
+const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
-  variable: '--font-nunito',
+  variable: '--font-inter',
   display: 'swap',
 })
 
@@ -27,12 +27,12 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   viewportFit: 'cover',
-  themeColor: '#305F72',
+  themeColor: '#161826',
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={`${nunito.variable} ${pacifico.variable}`}>
+    <html lang="pt-BR" className={`${inter.variable} ${pacifico.variable}`}>
       <body>
         <Providers>{children}</Providers>
       </body>

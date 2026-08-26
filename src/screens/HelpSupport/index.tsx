@@ -2,10 +2,10 @@
 
 import { memo, useCallback, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ChevronDown, ChevronUp, CircleHelp, Mail, MessagesSquare, Search, XCircle } from 'lucide-react'
+import { ChevronDown, CircleHelp, Mail, Search, XCircle } from 'lucide-react'
 
-import { AlertModal, ScreenHeader, useAlertModal } from '@/components/common'
-import { colors, gradients } from '@/theme'
+import { ScreenHeader } from '@/components/common'
+import { colors } from '@/theme'
 
 interface FAQItem {
   id: string
@@ -16,7 +16,7 @@ interface FAQItem {
 
 const FAQ: readonly FAQItem[] = [
   { id: '1', category: 'cadastro', question: 'Como cadastro uma criança no app?', answer: 'Na tela inicial toque no botão + (canto inferior direito) e siga as etapas. Você pode adicionar nome, foto, gostos, dificuldades e nível de TEA para que o app adapte melhor a experiência.' },
-  { id: '2', category: 'jogos', question: 'Os jogos são adaptados para TEA níveis 1, 2 e 3?', answer: 'Sim. Usamos cores suaves, fontes arredondadas, feedbacks previsíveis e evitamos estímulos bruscos. Quanto maior o nível de suporte cadastrado, mais simples fica a progressão dos jogos.' },
+  { id: '2', category: 'jogos', question: 'Os jogos são adaptados para TEA níveis 1, 2 e 3?', answer: 'Sim. Usamos cores suaves, feedbacks previsíveis e evitamos estímulos bruscos. Quanto maior o nível de suporte cadastrado, mais simples fica a progressão dos jogos.' },
   { id: '3', category: 'progresso', question: 'Como vejo o progresso da criança?', answer: 'Toque no card da criança na tela inicial para ver conquistas, atividades recentes, rotina e anotações. Na Home também aparecem estatísticas gerais no topo.' },
   { id: '4', category: 'jogos', question: 'Posso desativar os sons dos mini-jogos?', answer: 'Pode! Em Configurações, na seção Permissões, desative a opção "Som do app". Isso remove todos os efeitos sonoros dos jogos.' },
   { id: '5', category: 'privacidade', question: 'Meus dados e os da criança ficam seguros?', answer: 'Sim. Usamos armazenamento seguro no dispositivo e autenticação por token. Não compartilhamos dados com terceiros e o app é livre de publicidade.' },
@@ -34,23 +34,16 @@ const CATEGORY_LABEL: Record<FAQItem['category'], string> = {
 
 const AccordionItem = memo(function AccordionItem({ item, expanded, onToggle }: { item: FAQItem; expanded: boolean; onToggle: (id: string) => void }) {
   return (
-    <div className="bg-surface rounded-lg overflow-hidden shadow-sm">
-      <button type="button" onClick={() => onToggle(item.id)} aria-expanded={expanded} aria-label={item.question} className="w-full flex items-center p-md gap-md text-left">
-        <div className="w-[38px] h-[38px] rounded-pill bg-info-light flex items-center justify-center shrink-0">
-          <CircleHelp size={22} color={colors.primary} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-caption font-bold uppercase tracking-[0.8px]" style={{ color: colors.primaryLight }}>
-            {CATEGORY_LABEL[item.category]}
-          </p>
-          <p className="text-subtitle text-text-primary mt-0.5">{item.question}</p>
-        </div>
-        {expanded ? <ChevronUp size={20} color={colors.textSecondary} /> : <ChevronDown size={20} color={colors.textSecondary} />}
+    <div className="bg-surface rounded-lg overflow-hidden">
+      <button type="button" onClick={() => onToggle(item.id)} aria-expanded={expanded} aria-label={item.question} className="w-full flex items-center gap-md p-md text-left">
+        <span className="text-label px-sm py-1 rounded-md bg-surface-alt text-text-secondary shrink-0">{CATEGORY_LABEL[item.category]}</span>
+        <span className="flex-1 text-body-small font-medium text-text-primary">{item.question}</span>
+        <ChevronDown size={16} color={colors.textMuted} className="shrink-0 transition-transform" style={{ transform: expanded ? 'rotate(180deg)' : 'none' }} />
       </button>
 
       {expanded && (
-        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} transition={{ duration: 0.25 }} className="px-lg pb-lg overflow-hidden">
-          <p className="text-body text-text-secondary">{item.answer}</p>
+        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} transition={{ duration: 0.25 }} className="px-md pb-md overflow-hidden">
+          <p className="text-caption text-text-secondary leading-relaxed">{item.answer}</p>
         </motion.div>
       )}
     </div>
@@ -58,7 +51,6 @@ const AccordionItem = memo(function AccordionItem({ item, expanded, onToggle }: 
 })
 
 export default function HelpSupportScreen() {
-  const alert = useAlertModal()
   const [query, setQuery] = useState('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
@@ -76,32 +68,28 @@ export default function HelpSupportScreen() {
     window.location.href = 'mailto:suporte@letrinhasencantadas.app?subject=Ajuda%20no%20app%20Letrinhas%20Encantadas'
   }, [])
 
-  const handleFeedback = useCallback(() => {
-    alert.showSuccess('Obrigado! Em breve teremos o envio de feedback direto pelo app.', 'Valeu!')
-  }, [alert])
-
   return (
-    <div className="min-h-dvh flex flex-col" style={{ backgroundImage: `linear-gradient(180deg, ${gradients.soft.join(', ')})` }}>
-      <ScreenHeader title="Ajuda e suporte" subtitle="Tire suas dúvidas sobre o app" />
+    <div className="min-h-dvh flex flex-col bg-background">
+      <ScreenHeader title="Ajuda e suporte" />
 
-      <div className="flex-1 overflow-y-auto p-xl pb-huge flex flex-col gap-md">
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="flex items-center gap-sm bg-surface rounded-md px-md h-[46px] shadow-sm">
-          <Search size={18} color={colors.textSecondary} />
-          <input className="flex-1 bg-transparent outline-none text-body text-text-primary placeholder:text-text-muted" value={query} onChange={e => setQuery(e.target.value)} placeholder="Buscar pergunta..." />
+      <div className="flex-1 overflow-y-auto px-xl pb-huge flex flex-col gap-md">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="flex items-center gap-sm bg-surface-alt border border-divider rounded-md px-md h-11">
+          <Search size={16} color={colors.textMuted} />
+          <input className="flex-1 bg-transparent outline-none text-body-small text-text-primary placeholder:text-text-muted" value={query} onChange={e => setQuery(e.target.value)} placeholder="Buscar pergunta..." />
           {query.length > 0 && (
             <button type="button" onClick={() => setQuery('')} aria-label="Limpar busca">
-              <XCircle size={18} color={colors.textMuted} />
+              <XCircle size={16} color={colors.textMuted} />
             </button>
           )}
         </motion.div>
 
-        <p className="text-label text-text-secondary ml-xs mt-sm">Perguntas frequentes</p>
+        <p className="text-label text-text-muted ml-xs mt-sm">Perguntas frequentes</p>
 
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center gap-sm p-xl bg-surface rounded-lg">
-            <Search size={32} color={colors.textMuted} />
-            <p className="text-subtitle text-text-primary">Nada encontrado</p>
-            <p className="text-caption text-text-secondary text-center">Tente outra palavra ou entre em contato conosco.</p>
+            <Search size={28} color={colors.textMuted} />
+            <p className="text-body-small font-medium text-text-primary">Nada encontrado</p>
+            <p className="text-caption text-text-secondary text-center">Tente outra palavra.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-sm">
@@ -111,27 +99,21 @@ export default function HelpSupportScreen() {
           </div>
         )}
 
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="rounded-xl overflow-hidden shadow-lg mt-md">
-          <div className="flex flex-col items-center p-xl" style={{ backgroundImage: `linear-gradient(135deg, ${gradients.accent.join(', ')})` }}>
-            <div className="w-[60px] h-[60px] rounded-pill bg-white/22 flex items-center justify-center mb-md">
-              <MessagesSquare size={28} color={colors.white} />
-            </div>
-            <h2 className="text-h2 text-white text-center">Ainda com dúvida?</h2>
-            <p className="text-body text-white/92 text-center mt-xs mb-lg">Nosso time responde em até 48h. Fale com a gente!</p>
-
-            <button type="button" onClick={handleEmail} aria-label="Enviar email para o suporte" className="w-full flex items-center justify-center gap-sm bg-white px-xl py-md rounded-pill">
-              <Mail size={18} color={colors.accent} />
-              <span className="text-button text-accent">Enviar email</span>
-            </button>
-
-            <button type="button" onClick={handleFeedback} aria-label="Enviar feedback" className="mt-sm py-sm">
-              <span className="text-caption text-white/92 font-bold">Enviar feedback</span>
-            </button>
-          </div>
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="bg-surface rounded-lg p-xl flex flex-col items-center gap-sm mt-sm">
+          <CircleHelp size={22} color={colors.primary} />
+          <p className="text-body-small font-medium text-text-primary">Ainda com dúvida?</p>
+          <p className="text-caption text-text-secondary text-center">Nosso time responde em até 48h.</p>
+          <button
+            type="button"
+            onClick={handleEmail}
+            aria-label="Enviar email para o suporte"
+            className="w-full h-11 rounded-pill border border-primary text-primary flex items-center justify-center gap-sm text-button-small mt-sm"
+          >
+            <Mail size={16} />
+            Enviar email
+          </button>
         </motion.div>
       </div>
-
-      <AlertModal visible={alert.state.visible} onClose={alert.hide} title={alert.state.title} message={alert.state.message} variant={alert.state.variant} actions={alert.state.actions} autoHideMs={alert.state.autoHideMs} />
     </div>
   )
 }

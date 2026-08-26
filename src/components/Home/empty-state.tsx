@@ -1,6 +1,5 @@
 import { memo } from 'react'
 import { Plus, Users } from 'lucide-react'
-import { gradients } from '@/theme'
 
 interface EmptyStateProps {
   searchQuery: string
@@ -13,8 +12,8 @@ function EmptyStateComponent({ searchQuery, onAddChild }: EmptyStateProps) {
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center py-[72px] px-huge text-center">
-      <div className="w-[120px] h-[120px] rounded-pill flex items-center justify-center mb-xxl shadow-md" style={{ backgroundImage: `linear-gradient(135deg, ${gradients.secondary.join(', ')})` }}>
-        <Users size={56} color="white" />
+      <div className="w-[96px] h-[96px] rounded-pill bg-primary-soft flex items-center justify-center mb-xl">
+        <Users size={40} className="text-primary-light" />
       </div>
 
       <h2 className="text-h2 text-text-primary mb-sm">{searching ? 'Nenhuma criança encontrada' : 'Nenhuma criança cadastrada'}</h2>
@@ -24,11 +23,9 @@ function EmptyStateComponent({ searchQuery, onAddChild }: EmptyStateProps) {
       </p>
 
       {!searching && (
-        <button type="button" onClick={onAddChild} aria-label="Adicionar criança" className="rounded-lg overflow-hidden shadow-md transition-transform active:scale-[0.97]">
-          <span className="flex items-center gap-sm px-xxl py-md" style={{ backgroundImage: `linear-gradient(90deg, ${gradients.primary.join(', ')})` }}>
-            <Plus size={20} color="white" />
-            <span className="text-button text-white">Adicionar criança</span>
-          </span>
+        <button type="button" onClick={onAddChild} aria-label="Adicionar criança" className="h-12 px-xl rounded-pill border border-primary text-primary flex items-center gap-sm text-button">
+          <Plus size={18} />
+          Adicionar criança
         </button>
       )}
     </div>

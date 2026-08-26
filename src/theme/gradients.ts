@@ -4,21 +4,21 @@
  * Use `gradientCss(token)` para obter a string CSS `linear-gradient(...)`.
  */
 export const gradients = {
-  primary: ['#305F72', '#567B8B'],
-  primaryDeep: ['#1F4352', '#305F72'],
-  secondary: ['#CBAACB', '#E2CDE2'],
-  accent: ['#F5A97C', '#FAC7A6'],
-  success: ['#7FB77E', '#A8CEA7'],
-  warning: ['#E9B44C', '#F3CC7F'],
-  error: ['#D9756B', '#E89990'],
-  info: ['#6DAED9', '#A4CDE5'],
-  soft: ['#FFF8F4', '#F6EEE6'],
-  cream: ['#FFFFFF', '#FFF8F4'],
-  boy: ['#DBEDF7', '#B9D9EA', '#6DAED9'],
-  girl: ['#F7E0E8', '#EEBFCD', '#E8A7BD'],
-  sunset: ['#FAC7A6', '#E8A7BD'],
-  ocean: ['#B9D9EA', '#567B8B'],
-  candy: ['#CBAACB', '#F5A97C'],
+  primary: ['#9184d9', '#b5abfc'],
+  primaryDeep: ['#796cbf', '#9184d9'],
+  secondary: ['#a7a1db', '#d2cefd'],
+  accent: ['#f0c368', '#f6d692'],
+  success: ['#8fcb92', '#a8d9ab'],
+  warning: ['#f0c368', '#f6d692'],
+  error: ['#e38a7e', '#eba89f'],
+  info: ['#7ebbe0', '#a8d0ea'],
+  soft: ['#161826', '#232532'],
+  cream: ['#232532', '#0d0e16'],
+  boy: ['#3a4a5a', '#5a7a95', '#7ebbe0'],
+  girl: ['#4a3a45', '#8a5a75', '#e6a0c4'],
+  sunset: ['#f6d692', '#e6a0c4'],
+  ocean: ['#7ebbe0', '#796cbf'],
+  candy: ['#a7a1db', '#f0c368'],
 } as const satisfies Record<string, readonly string[]>
 
 export type GradientToken = keyof typeof gradients

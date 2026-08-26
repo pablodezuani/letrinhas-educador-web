@@ -7,28 +7,26 @@ import { ArrowLeft, Mail } from 'lucide-react'
 
 import { api } from '@/services/api'
 import { AlertModal, useAlertModal } from '@/components/common'
-import { Button, Input, Screen } from '@/components/ui'
-import { useReduceMotion } from '@/contexts/ThemeContext'
 import { colors } from '@/theme'
 
 export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
+  const [sent, setSent] = useState(false)
   const alert = useAlertModal()
   const router = useRouter()
-  const reduceMotion = useReduceMotion()
 
   const goBack = useCallback(() => router.back(), [router])
 
   const handleResetPassword = useCallback(async () => {
-    if (!email) {
+    if (!email.trim()) {
       alert.showWarning('Digite seu e-mail para continuar.', 'Atenção')
       return
     }
     setLoading(true)
     try {
       await api.post('/reset-password', { email })
-      alert.show({ title: 'Enviado!', message: 'Verifique sua caixa de entrada.', variant: 'success', autoHideMs: 2500 })
+      setSent(true)
     } catch {
       alert.showError('Não foi possível enviar o e-mail. Tente novamente.', 'Ops!')
     } finally {
@@ -37,56 +35,68 @@ export default function ForgotPasswordScreen() {
   }, [alert, email])
 
   return (
-    <Screen background="cream" padded={false} edges={['top']}>
-      <div className="absolute w-[170px] h-[170px] rounded-pill bg-secondary opacity-[0.18] -top-[60px] -right-10 pointer-events-none" />
-      <div className="absolute w-[76px] h-[76px] rounded-pill bg-accent opacity-[0.18] top-20 right-[70px] pointer-events-none" />
-
-      <motion.div
-        initial={reduceMotion ? false : { opacity: 0, x: -24 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, delay: reduceMotion ? 0 : 0.2 }}
-        className="px-xxl pb-lg pt-xl"
-      >
-        <button type="button" onClick={goBack} aria-label="Voltar" className="w-10 h-10 rounded-pill bg-primary-soft flex items-center justify-center mb-lg transition-transform active:scale-[0.92]">
-          <ArrowLeft size={20} color={colors.primary} />
+    <div className="flex flex-col min-h-dvh bg-background">
+      <div className="px-xxl pt-[calc(env(safe-area-inset-top)+26px)]">
+        <button type="button" onClick={goBack} aria-label="Voltar" className="w-9 h-9 rounded-pill bg-surface border border-border flex items-center justify-center text-text-primary transition-transform active:scale-[0.92]">
+          <ArrowLeft size={16} />
         </button>
-        <p className="text-label mb-xs text-accent-dark">RECUPERAR ACESSO</p>
-        <h1 className="text-h1 text-primary">
-          Esqueceu
-          <br />
-          sua senha?
-        </h1>
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={reduceMotion ? false : { opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: reduceMotion ? 0 : 0.25 }}
-        className="flex-1 bg-primary rounded-t-xxl px-xxl pt-xxl pb-xxl flex flex-col"
-      >
-        <div className="w-9 h-1 bg-white/28 rounded-full self-center mb-xxl" />
-
-        <div className="rounded-pill bg-[rgba(203,170,203,0.22)] border-[1.5px] border-[rgba(203,170,203,0.4)] flex items-center justify-center self-center mb-xl" style={{ width: 72, height: 72 }}>
-          <Mail size={28} color={colors.secondary} />
+      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="flex-1 flex flex-col items-center justify-center gap-md px-xxl text-center">
+        <div className="w-16 h-16 rounded-pill bg-primary-soft flex items-center justify-center">
+          <Mail size={26} color={colors.primaryLight} />
         </div>
 
-        <p className="text-body text-center mb-xxl" style={{ color: 'rgba(255,248,244,0.78)' }}>
-          Digite seu e-mail e enviaremos um link para você criar uma nova senha.
-        </p>
+        {sent ? (
+          <>
+            <p className="text-h2 text-text-primary">Link enviado!</p>
+            <p className="text-body-small text-text-secondary max-w-[280px]">Verifique sua caixa de entrada — o link expira em 30 minutos.</p>
+            <button
+              type="button"
+              onClick={handleResetPassword}
+              disabled={loading}
+              className="h-11 w-full max-w-[320px] rounded-pill border border-divider text-text-secondary flex items-center justify-center text-button-small mt-sm disabled:opacity-50"
+            >
+              {loading ? 'Reenviando...' : 'Reenviar'}
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="text-h2 text-text-primary">Esqueceu sua senha?</p>
+            <p className="text-body-small text-text-secondary max-w-[280px]">Digite seu e-mail e enviaremos um link para criar uma nova senha.</p>
 
-        <Input label="Email" tone="dark" icon={<Mail size={18} color="rgba(255,248,244,0.7)" />} placeholder="seu@email.com" value={email} onChange={e => setEmail(e.target.value)} type="email" autoCapitalize="none" />
+            <div className="w-full max-w-[320px] flex flex-col gap-1.5 text-left mt-sm">
+              <label className="text-caption text-text-secondary">Email</label>
+              <input
+                className="bg-surface-alt border border-divider rounded-md px-md py-sm text-body text-text-primary outline-none focus-visible:border-primary"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="seu@email.com"
+                type="email"
+                autoCapitalize="none"
+              />
+            </div>
 
-        <Button label={loading ? 'Enviando…' : 'Enviar link'} variant="primary" size="lg" fullWidth loading={loading} onClick={handleResetPassword} className="mt-sm mb-xl" />
+            <button
+              type="button"
+              onClick={handleResetPassword}
+              disabled={loading}
+              className="h-[50px] w-full max-w-[320px] rounded-pill border border-primary text-primary flex items-center justify-center text-button transition-transform active:scale-[0.98] disabled:opacity-50"
+            >
+              {loading ? 'Enviando...' : 'Enviar link'}
+            </button>
+          </>
+        )}
 
-        <button type="button" onClick={goBack} className="text-center text-body-small" style={{ color: 'rgba(255,248,244,0.7)' }}>
-          Lembrou a senha?{'  '}
-          <span className="font-bold underline" style={{ color: colors.secondaryLight }}>
+        <span className="text-caption text-text-muted mt-sm">
+          Lembrou a senha?{' '}
+          <button type="button" onClick={goBack} className="text-primary font-medium">
             Voltar ao login
-          </span>
-        </button>
+          </button>
+        </span>
       </motion.div>
 
       <AlertModal visible={alert.state.visible} onClose={alert.hide} title={alert.state.title} message={alert.state.message} variant={alert.state.variant} actions={alert.state.actions} autoHideMs={alert.state.autoHideMs} />
-    </Screen>
+    </div>
   )
 }

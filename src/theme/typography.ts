@@ -1,6 +1,6 @@
 /**
- * Pacifico  → branding (logo, títulos especiais).
- * Nunito    → fonte funcional (todo o resto). Carregadas via Google Fonts em index.html.
+ * Pacifico → branding (logo, títulos especiais) — mantido para os poucos usos pontuais.
+ * Inter    → fonte funcional (todo o resto), identidade Nocturne. Carregada via next/font.
  */
 export const fontWeight = {
   regular: 400,
@@ -11,10 +11,10 @@ export const fontWeight = {
 
 export const fontFamily = {
   display: "'Pacifico', cursive",
-  regular: "'Nunito', sans-serif",
-  medium: "'Nunito', sans-serif",
-  semibold: "'Nunito', sans-serif",
-  bold: "'Nunito', sans-serif",
+  regular: "'Inter', sans-serif",
+  medium: "'Inter', sans-serif",
+  semibold: "'Inter', sans-serif",
+  bold: "'Inter', sans-serif",
 } as const
 
 export interface TypographyStyle {
@@ -35,27 +35,27 @@ export const typography = {
     letterSpacing: 0.5,
   },
   h1: {
-    fontFamily: fontFamily.bold,
-    fontWeight: fontWeight.bold,
+    fontFamily: fontFamily.medium,
+    fontWeight: fontWeight.medium,
     fontSize: 28,
     lineHeight: 34,
     letterSpacing: -0.2,
   },
   h2: {
-    fontFamily: fontFamily.bold,
-    fontWeight: fontWeight.bold,
+    fontFamily: fontFamily.medium,
+    fontWeight: fontWeight.medium,
     fontSize: 22,
     lineHeight: 28,
   },
   h3: {
-    fontFamily: fontFamily.semibold,
-    fontWeight: fontWeight.semibold,
+    fontFamily: fontFamily.medium,
+    fontWeight: fontWeight.medium,
     fontSize: 18,
     lineHeight: 24,
   },
   subtitle: {
-    fontFamily: fontFamily.semibold,
-    fontWeight: fontWeight.semibold,
+    fontFamily: fontFamily.medium,
+    fontWeight: fontWeight.medium,
     fontSize: 16,
     lineHeight: 22,
   },
