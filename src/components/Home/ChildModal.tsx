@@ -1,25 +1,51 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Award, Bell, Brain, CheckCircle2, ClipboardList, Clock, Frown, Hand, Heart, Smile, Star, Stethoscope, X, XCircle } from 'lucide-react'
-import type { Child } from '@/lib/types'
+import {
+  Award, Bell, Brain, CheckCircle2, ClipboardList, Clock, Frown, GraduationCap,
+  Hand, Heart, MapPin, MessageSquare, School as SchoolIcon, Smile, Star, Stethoscope, X, XCircle,
+} from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { api } from '@/services/api'
+import { mapApiChild, type Child, type School } from '@/lib/types'
 import { InfoCard } from './info-card'
+import { SchoolPicker } from '@/components/school/SchoolPicker'
 
 interface ChildModalProps {
   child: Child
   visible: boolean
   onClose: () => void
+  onChildUpdated?: (child: Child) => void
 }
 
 const TABS = [
   { id: 'overview', label: 'Visão Geral', emoji: '🏠', color: '#4CAF50' },
+  { id: 'unit', label: 'Unidade', emoji: '🏫', color: '#3F51B5' },
   { id: 'personal', label: 'Pessoal', emoji: '👤', color: '#2196F3' },
   { id: 'behavior', label: 'Comportamento', emoji: '😊', color: '#FF9800' },
   { id: 'help', label: 'Ajuda', emoji: '🤝', color: '#9C27B0' },
   { id: 'medical', label: 'Saúde', emoji: '🏥', color: '#F44336' },
 ] as const
 
-export function ChildModal({ child, visible, onClose }: ChildModalProps) {
+export function ChildModal({ child, visible, onClose, onChildUpdated }: ChildModalProps) {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState(0)
+  const [picking, setPicking] = useState(false)
+  const [pendingSchool, setPendingSchool] = useState<School | null>(null)
+  const [saving, setSaving] = useState(false)
+
+  async function applySchool(schoolId: string | null) {
+    setSaving(true)
+    try {
+      const res = await api.patch(`/children/${child.id}/school`, { schoolId })
+      onChildUpdated?.(mapApiChild(res.data))
+      setPicking(false)
+      setPendingSchool(null)
+    } catch {
+      // silencioso — o usuário pode tentar novamente pela mesma tela
+    } finally {
+      setSaving(false)
+    }
+  }
 
   const sections = {
     overview: [
@@ -74,7 +100,8 @@ export function ChildModal({ child, visible, onClose }: ChildModalProps) {
     ],
   }
 
-  const activeSections = Object.values(sections)[activeTab]
+  const activeTabId = TABS[activeTab].id
+  const activeSections = activeTabId in sections ? sections[activeTabId as keyof typeof sections] : undefined
   const accentColor = `${child.color}CC`
 
   return (
@@ -162,13 +189,154 @@ export function ChildModal({ child, visible, onClose }: ChildModalProps) {
             </div>
 
             <div className="flex-1 overflow-y-auto p-3.5 pb-9">
-              {activeSections?.map(s => (
-                <InfoCard key={s.id} title={s.title} content={s.content} Icon={s.Icon} color={s.color} bg={s.bg} />
-              ))}
+              {activeTabId === 'unit' ? (
+                <UnitTab
+                  child={child}
+                  picking={picking}
+                  pendingSchool={pendingSchool}
+                  saving={saving}
+                  onStartPicking={() => setPicking(true)}
+                  onCancelPicking={() => setPicking(false)}
+                  onPick={school => (child.school ? setPendingSchool(school) : applySchool(school.id))}
+                  onConfirmChange={() => pendingSchool && applySchool(pendingSchool.id)}
+                  onCancelChange={() => setPendingSchool(null)}
+                  onOpenMessages={() => {
+                    onClose()
+                    router.push(`/messages/${child.id}`)
+                  }}
+                />
+              ) : (
+                activeSections?.map(s => (
+                  <InfoCard key={s.id} title={s.title} content={s.content} Icon={s.Icon} color={s.color} bg={s.bg} />
+                ))
+              )}
             </div>
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
+  )
+}
+
+function UnitTab({
+  child,
+  picking,
+  pendingSchool,
+  saving,
+  onStartPicking,
+  onCancelPicking,
+  onPick,
+  onConfirmChange,
+  onCancelChange,
+  onOpenMessages,
+}: {
+  child: Child
+  picking: boolean
+  pendingSchool: School | null
+  saving: boolean
+  onStartPicking: () => void
+  onCancelPicking: () => void
+  onPick: (school: School) => void
+  onConfirmChange: () => void
+  onCancelChange: () => void
+  onOpenMessages: () => void
+}) {
+  if (picking) {
+    return (
+      <div className="flex flex-col gap-sm">
+        <SchoolPicker onSelect={onPick} excludeId={child.schoolId} />
+        <button type="button" onClick={onCancelPicking} className="text-label text-gray-500 self-start">
+          Cancelar
+        </button>
+      </div>
+    )
+  }
+
+  if (pendingSchool) {
+    return (
+      <div className="flex flex-col gap-md p-md rounded-md border border-[#f0c368]" style={{ backgroundColor: '#fff8e6' }}>
+        <p className="text-body-small font-medium text-gray-800">Trocar para {pendingSchool.name}?</p>
+        <p className="text-caption text-gray-600">
+          A educadora responsável atual será removida, já que ela pertence à unidade anterior — a comunicação com ela ficará indisponível até uma nova educadora ser atribuída.
+        </p>
+        <div className="flex gap-sm">
+          <button type="button" onClick={onConfirmChange} disabled={saving} className="flex-1 h-9 rounded-md bg-[#3F51B5] text-white text-label font-semibold disabled:opacity-60">
+            {saving ? 'Salvando...' : 'Confirmar troca'}
+          </button>
+          <button type="button" onClick={onCancelChange} className="flex-1 h-9 rounded-md border border-gray-300 text-gray-600 text-label font-semibold">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (!child.school) {
+    return (
+      <div className="flex flex-col items-center text-center gap-sm py-lg">
+        <div className="w-12 h-12 rounded-md flex items-center justify-center" style={{ backgroundColor: '#eef0fb' }}>
+          <SchoolIcon size={22} color="#3F51B5" />
+        </div>
+        <p className="text-body-small font-semibold text-gray-800">Sem unidade vinculada</p>
+        <p className="text-caption text-gray-600 max-w-[260px]">
+          Vincule esta criança a uma unidade para acompanhar a educadora responsável e receber comunicações.
+        </p>
+        <button type="button" onClick={onStartPicking} disabled={saving} className="mt-1.5 h-10 px-lg rounded-md bg-[#3F51B5] text-white text-label font-semibold">
+          Vincular unidade
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col gap-md">
+      <div className="flex items-center gap-sm p-md rounded-md" style={{ backgroundColor: '#eef0fb' }}>
+        <div className="w-10 h-10 rounded-md flex items-center justify-center shrink-0 bg-white">
+          <SchoolIcon size={18} color="#3F51B5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-body-small font-medium text-gray-800 truncate">{child.school.name}</p>
+          {(child.school.address || child.school.city) && (
+            <p className="text-caption text-gray-600 truncate flex items-center gap-1">
+              <MapPin size={10} className="shrink-0" />
+              {[child.school.address, child.school.city, child.school.state].filter(Boolean).join(', ')}
+            </p>
+          )}
+        </div>
+        <button type="button" onClick={onStartPicking} className="text-label font-semibold shrink-0" style={{ color: '#3F51B5' }}>
+          Trocar
+        </button>
+      </div>
+
+      {child.educator ? (
+        <div className="flex items-center gap-sm p-md rounded-md" style={{ backgroundColor: '#f3e5f5' }}>
+          {child.educator.photo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={child.educator.photo} alt="" className="w-10 h-10 rounded-pill object-cover shrink-0" />
+          ) : (
+            <div className="w-10 h-10 rounded-pill flex items-center justify-center shrink-0 bg-white">
+              <GraduationCap size={18} color="#9C27B0" />
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="text-caption text-gray-600">Educadora responsável</p>
+            <p className="text-body-small font-medium text-gray-800 truncate">{child.educator.name}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onOpenMessages}
+            aria-label="Enviar mensagem"
+            className="w-9 h-9 rounded-pill flex items-center justify-center shrink-0 bg-white"
+          >
+            <MessageSquare size={16} color="#9C27B0" />
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center gap-sm p-md rounded-md border border-dashed border-gray-300">
+          <GraduationCap size={16} className="text-gray-500 shrink-0" />
+          <p className="text-caption text-gray-600">Ainda sem educadora responsável definida pela unidade.</p>
+        </div>
+      )}
+    </div>
   )
 }

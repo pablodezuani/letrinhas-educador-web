@@ -7,6 +7,62 @@ export interface User {
   completedActivities: number
 }
 
+export interface School {
+  id: string
+  name: string
+  address?: string | null
+  city?: string | null
+  state?: string | null
+}
+
+export interface ChildEducator {
+  id: string
+  name: string
+  email: string
+  photo?: string | null
+}
+
+export type AttachmentKind = 'IMAGE' | 'VIDEO' | 'DOCUMENT'
+
+export interface Attachment {
+  id: string
+  kind: AttachmentKind
+  url: string
+  fileName: string
+  mimeType: string
+  size: number
+}
+
+export interface Message {
+  id: string
+  conversationId: string
+  senderId: string
+  sender: { id: string; name: string; role: 'PARENT' | 'EDUCATOR' | 'ADMIN'; photo?: string | null }
+  body?: string | null
+  attachment?: Attachment | null
+  readAt?: string | null
+  createdAt: string
+}
+
+export interface Conversation {
+  id: string
+  childId: string
+  updatedAt: string
+  child: {
+    id: string
+    name: string
+    photo?: string | null
+    emoji?: string | null
+    color?: string | null
+    lightColor?: string | null
+    parent: { id: string; name: string }
+    educator?: { id: string; name: string; photo?: string | null } | null
+    school?: { id: string; name: string } | null
+  }
+  lastMessage: Message | null
+  unreadCount: number
+}
+
 export interface Child {
   id: string
   name: string
@@ -17,6 +73,10 @@ export interface Child {
   difficulties: string
   hasTEA: boolean
   teaLevel: number
+  schoolId?: string | null
+  school?: School | null
+  educatorId?: string | null
+  educator?: ChildEducator | null
   likes: string
   aboutMe: string
   dislikes: string
@@ -120,5 +180,9 @@ export function mapApiChild(raw: any): Child {
     recentActivities,
     therapies: Array.isArray(raw.therapies) ? raw.therapies : [],
     emergencyContacts: Array.isArray(raw.emergencyContacts) ? raw.emergencyContacts : [],
+    schoolId: raw.schoolId ?? null,
+    school: raw.school ?? null,
+    educatorId: raw.educatorId ?? null,
+    educator: raw.educator ?? null,
   }
 }

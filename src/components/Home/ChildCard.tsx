@@ -2,7 +2,7 @@
 
 import { memo, useCallback, type MouseEvent } from 'react'
 import { useRouter } from 'next/navigation'
-import { MoreHorizontal, Play } from 'lucide-react'
+import { MoreHorizontal, Play, School as SchoolIcon } from 'lucide-react'
 import type { Child } from '@/lib/types'
 import { colors } from '@/theme'
 import { stashSelectedChild } from '@/lib/navState'
@@ -69,7 +69,7 @@ function ChildCardComponent({ child, onSelect }: ChildCardProps) {
           <div className="h-full rounded-pill transition-[width]" style={{ width: `${child.progressToday}%`, backgroundColor: progressColor }} />
         </div>
 
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-sm">
           <span className="text-label text-text-muted truncate">
             {child.favoriteActivity || 'Sem atividade'} · {child.progressToday}%
           </span>
@@ -78,6 +78,17 @@ function ChildCardComponent({ child, onSelect }: ChildCardProps) {
             Jogar
           </button>
         </div>
+
+        {child.school ? (
+          <span className="inline-flex items-center gap-1 text-label px-sm py-0.5 rounded-md self-start" style={{ color: colors.success, backgroundColor: colors.successLight }}>
+            <SchoolIcon size={9} />
+            {child.school.name}
+          </span>
+        ) : (
+          <span className="inline-flex items-center gap-1 text-label px-sm py-0.5 rounded-md self-start bg-surface-alt text-text-muted">
+            Sem unidade
+          </span>
+        )}
       </div>
     </div>
   )

@@ -23,6 +23,7 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState('')
   const [showSearchBar, setShowSearchBar] = useState(false)
   const [loadingChildren, setLoadingChildren] = useState(true)
+  const [unreadMessages, setUnreadMessages] = useState(0)
 
   const fetchChildren = useCallback(async () => {
     try {
@@ -39,6 +40,13 @@ export default function HomeScreen() {
   useEffect(() => {
     fetchChildren()
   }, [fetchChildren])
+
+  useEffect(() => {
+    api
+      .get('/notifications/unread-count')
+      .then(res => setUnreadMessages(res.data.count))
+      .catch(() => {})
+  }, [])
 
   const user = useMemo<User>(() => {
     const displayName = authUser.name?.trim() || 'Usuário'
@@ -88,14 +96,26 @@ export default function HomeScreen() {
         children={children}
         searchQuery={searchQuery}
         showSearchBar={showSearchBar}
+        unreadMessages={unreadMessages}
         onSearchChange={setSearchQuery}
         onToggleSearch={toggleSearchBar}
         onOpenProfile={openProfile}
+        onOpenMessages={() => router.push('/messages')}
       />
 
       <ChildrenList children={filteredChildren} loading={loadingChildren} onChildSelect={openModal} searchQuery={searchQuery} onAddChild={navigateToAddChild} />
 
-      {selectedChild && <ChildModal child={selectedChild} visible={modalVisible} onClose={closeModal} />}
+      {selectedChild && (
+        <ChildModal
+          child={selectedChild}
+          visible={modalVisible}
+          onClose={closeModal}
+          onChildUpdated={updated => {
+            setSelectedChild(updated)
+            setChildren(prev => prev.map(c => (c.id === updated.id ? updated : c)))
+          }}
+        />
+      )}
 
       <ProfileModal user={user} visible={profileModalVisible} onClose={closeProfile} />
 

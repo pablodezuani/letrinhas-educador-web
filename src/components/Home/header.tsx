@@ -1,6 +1,6 @@
 import { memo, useCallback, useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Bell, Search, X, XCircle } from 'lucide-react'
+import { Bell, MessageSquare, Search, X, XCircle } from 'lucide-react'
 import { StatsCards } from './StatsCards'
 import type { Child, User } from '@/lib/types'
 import { colors } from '@/theme'
@@ -10,9 +10,11 @@ interface HeaderProps {
   children: Child[]
   searchQuery: string
   showSearchBar: boolean
+  unreadMessages?: number
   onSearchChange: (query: string) => void
   onToggleSearch: () => void
   onOpenProfile: () => void
+  onOpenMessages?: () => void
 }
 
 function getGreeting(): string {
@@ -22,7 +24,7 @@ function getGreeting(): string {
   return 'Boa noite'
 }
 
-function HeaderComponent({ user, children, searchQuery, showSearchBar, onSearchChange, onToggleSearch, onOpenProfile }: HeaderProps) {
+function HeaderComponent({ user, children, searchQuery, showSearchBar, unreadMessages = 0, onSearchChange, onToggleSearch, onOpenProfile, onOpenMessages }: HeaderProps) {
   const greeting = useMemo(() => getGreeting(), [])
 
   const stats = useMemo(
@@ -64,11 +66,24 @@ function HeaderComponent({ user, children, searchQuery, showSearchBar, onSearchC
           >
             {showSearchBar ? <X size={15} /> : <Search size={15} />}
           </button>
+          <button
+            type="button"
+            onClick={onOpenMessages}
+            aria-label="Mensagens"
+            className="relative w-[34px] h-[34px] rounded-pill bg-surface border border-border flex items-center justify-center text-text-primary transition-transform active:scale-[0.92]"
+          >
+            <MessageSquare size={15} />
+            {unreadMessages > 0 && (
+              <span
+                className="absolute -top-[3px] -right-[3px] min-w-[14px] h-[14px] rounded-[7px] bg-error flex items-center justify-center text-[8px] font-bold px-0.5"
+                style={{ color: colors.textOnPrimary }}
+              >
+                {unreadMessages > 9 ? '9+' : unreadMessages}
+              </span>
+            )}
+          </button>
           <button type="button" aria-label="Notificações" className="relative w-[34px] h-[34px] rounded-pill bg-surface border border-border flex items-center justify-center text-text-primary transition-transform active:scale-[0.92]">
             <Bell size={15} />
-            <span className="absolute -top-[3px] -right-[3px] min-w-[14px] h-[14px] rounded-[7px] bg-error flex items-center justify-center text-[8px] font-bold" style={{ color: colors.textOnPrimary }}>
-              3
-            </span>
           </button>
         </div>
       </div>

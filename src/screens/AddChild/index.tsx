@@ -3,13 +3,15 @@
 import { useCallback, useRef, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft, ArrowRight, Camera, Check, CheckCircle2, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Camera, Check, CheckCircle2, MapPin, School as SchoolIcon, X } from 'lucide-react'
 
 import { AlertModal, useAlertModal } from '@/components/common'
+import { SchoolPicker } from '@/components/school/SchoolPicker'
 import { CHILD_PALETTES, JOURNEY_STEPS } from '@/constants'
 import { usePhotoPicker } from '@/hooks'
 import { api } from '@/services/api'
 import { colors } from '@/theme'
+import type { School } from '@/lib/types'
 
 const CONTENT_MAX_WIDTH = 480
 
@@ -37,6 +39,7 @@ interface ChildFormData {
   autismInfo: string
   medications: string[]
   allergies: string[]
+  schoolId: string | null
 }
 
 const INITIAL_DATA: ChildFormData = {
@@ -63,6 +66,7 @@ const INITIAL_DATA: ChildFormData = {
   autismInfo: '',
   medications: [],
   allergies: [],
+  schoolId: null,
 }
 
 const csvField = (value: string[]) => value.join(', ')
@@ -78,6 +82,8 @@ export default function AddChildScreen() {
   const { openCamera, openGallery } = usePhotoPicker()
   const [currentStep, setCurrentStep] = useState(1)
   const [childData, setChildData] = useState<ChildFormData>(INITIAL_DATA)
+  const [selectedSchool, setSelectedSchool] = useState<School | null>(null)
+  const [pickingSchool, setPickingSchool] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -218,6 +224,24 @@ export default function AddChildScreen() {
         <motion.div key={currentStep} initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.25 }} className="w-full mx-auto bg-surface rounded-lg p-xl" style={{ maxWidth: CONTENT_MAX_WIDTH }}>
           {currentStep === 1 && <BasicInfoStep childData={childData} set={set} onSelectPhoto={selectPhoto} />}
           {currentStep === 2 && (
+            <SchoolStep
+              schoolId={childData.schoolId}
+              selectedSchool={selectedSchool}
+              picking={pickingSchool}
+              onStartPicking={() => setPickingSchool(true)}
+              onCancelPicking={() => setPickingSchool(false)}
+              onSelect={school => {
+                set('schoolId', school.id)
+                setSelectedSchool(school)
+                setPickingSchool(false)
+              }}
+              onClear={() => {
+                set('schoolId', null)
+                setSelectedSchool(null)
+              }}
+            />
+          )}
+          {currentStep === 3 && (
             <CategoryStep title="Informações pessoais">
               <FieldTextArea label="Sobre mim" placeholder="Conte sobre a personalidade da criança..." value={childData.aboutMe} onChange={v => set('aboutMe', v)} />
               <FieldTextArea label="Interesses especiais" placeholder="Quais são os interesses especiais?" value={csvField(childData.specialInterests)} onChange={v => set('specialInterests', parseCsv(v))} />
@@ -225,7 +249,7 @@ export default function AddChildScreen() {
               <FieldTextArea label="Comunicação" placeholder="Como a criança se comunica?" value={childData.communication} onChange={v => set('communication', v)} />
             </CategoryStep>
           )}
-          {currentStep === 3 && (
+          {currentStep === 4 && (
             <CategoryStep title="Comportamento">
               <FieldTextArea label="O que gosta" placeholder="O que a criança mais gosta?" value={csvField(childData.likes)} onChange={v => set('likes', parseCsv(v))} />
               <FieldTextArea label="O que não gosta" placeholder="O que a criança não gosta?" value={csvField(childData.dislikes)} onChange={v => set('dislikes', parseCsv(v))} />
@@ -233,7 +257,7 @@ export default function AddChildScreen() {
               <FieldTextArea label="Necessidades sensoriais" placeholder="Necessidades sensoriais..." value={childData.sensoryNeeds} onChange={v => set('sensoryNeeds', v)} />
             </CategoryStep>
           )}
-          {currentStep === 4 && (
+          {currentStep === 5 && (
             <CategoryStep title="Como ajudar">
               <FieldTextArea label="Como ajudar" placeholder="Como posso ajudar no dia a dia?" value={childData.howToHelp} onChange={v => set('howToHelp', v)} />
               <FieldTextArea label="Quando frustrada" placeholder="O que fazer quando frustrada?" value={childData.whenFrustrated} onChange={v => set('whenFrustrated', v)} />
@@ -241,7 +265,7 @@ export default function AddChildScreen() {
               <FieldTextArea label="Dificuldades" placeholder="Principais dificuldades..." value={csvField(childData.difficulties)} onChange={v => set('difficulties', parseCsv(v))} />
             </CategoryStep>
           )}
-          {currentStep === 5 && (
+          {currentStep === 6 && (
             <CategoryStep title="Saúde">
               <FieldTextArea label="Informações médicas" placeholder="Informações médicas relevantes..." value={childData.medicalInfo} onChange={v => set('medicalInfo', v)} />
               <FieldTextArea label="Informações TEA" placeholder="Detalhes sobre o TEA..." value={childData.autismInfo} onChange={v => set('autismInfo', v)} />
@@ -266,6 +290,100 @@ export default function AddChildScreen() {
       </div>
 
       <AlertModal visible={alert.state.visible} onClose={alert.hide} title={alert.state.title} message={alert.state.message} variant={alert.state.variant} actions={alert.state.actions} autoHideMs={alert.state.autoHideMs} />
+    </div>
+  )
+}
+
+function SchoolStep({
+  schoolId,
+  selectedSchool,
+  picking,
+  onStartPicking,
+  onCancelPicking,
+  onSelect,
+  onClear,
+}: {
+  schoolId: string | null
+  selectedSchool: School | null
+  picking: boolean
+  onStartPicking: () => void
+  onCancelPicking: () => void
+  onSelect: (school: School) => void
+  onClear: () => void
+}) {
+  return (
+    <div className="flex flex-col items-center">
+      <p className="text-subtitle text-text-primary mb-1.5 text-center">A criança pertence a uma unidade?</p>
+      <p className="text-caption text-text-muted mb-lg text-center max-w-[320px]">
+        Se a criança já frequenta uma escola ou unidade parceira, você pode vinculá-la agora — ou fazer isso depois, sem problema.
+      </p>
+
+      <div className="w-full flex flex-col gap-md">
+        {!schoolId && !picking && (
+          <div className="flex gap-sm">
+            <button
+              type="button"
+              onClick={onStartPicking}
+              className="flex-1 flex items-center gap-sm p-md rounded-md border-[1.5px] text-left transition-colors"
+              style={{ borderColor: colors.primary, backgroundColor: colors.primarySoft }}
+            >
+              <Check size={16} color={colors.primaryLight} />
+              <span className="text-body-small font-medium text-text-primary">Sim, buscar unidade</span>
+            </button>
+            <button
+              type="button"
+              onClick={onClear}
+              className="flex-1 flex items-center gap-sm p-md rounded-md border-[1.5px] text-left transition-colors"
+              style={{ borderColor: colors.divider, backgroundColor: 'transparent' }}
+            >
+              <X size={16} className="text-text-muted" />
+              <span className="text-body-small font-medium text-text-secondary">Não, por enquanto</span>
+            </button>
+          </div>
+        )}
+
+        {picking && (
+          <div className="flex flex-col gap-sm">
+            <SchoolPicker onSelect={onSelect} />
+            <button type="button" onClick={onCancelPicking} className="text-label text-text-muted self-start">
+              Cancelar busca
+            </button>
+          </div>
+        )}
+
+        {schoolId && selectedSchool && !picking && (
+          <div className="flex items-center gap-sm p-md rounded-md border-[1.5px]" style={{ borderColor: colors.primary, backgroundColor: colors.primarySoft }}>
+            <div className="w-10 h-10 rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: colors.surface }}>
+              <SchoolIcon size={18} color={colors.primaryLight} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-body-small font-medium text-text-primary truncate">{selectedSchool.name}</p>
+              {(selectedSchool.address || selectedSchool.city) && (
+                <p className="text-label text-text-muted truncate flex items-center gap-1">
+                  <MapPin size={10} className="shrink-0" />
+                  {[selectedSchool.address, selectedSchool.city, selectedSchool.state].filter(Boolean).join(', ')}
+                </p>
+              )}
+            </div>
+            <button type="button" onClick={onClear} aria-label="Remover unidade selecionada" className="shrink-0 text-text-muted">
+              <X size={16} />
+            </button>
+          </div>
+        )}
+
+        {schoolId && !selectedSchool && !picking && (
+          <div className="flex items-center justify-between gap-sm p-md rounded-md border border-divider">
+            <span className="text-body-small text-text-secondary">Unidade vinculada.</span>
+            <button type="button" onClick={onClear} className="text-label text-primary-light">
+              Remover
+            </button>
+          </div>
+        )}
+
+        <p className="text-label text-text-disabled text-center mt-1">
+          Você pode vincular, trocar ou remover a unidade depois, a qualquer momento.
+        </p>
+      </div>
     </div>
   )
 }
