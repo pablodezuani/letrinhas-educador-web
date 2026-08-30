@@ -143,9 +143,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 
   /*
-   * Mobile-first app shell: the app is meant to be opened from a phone browser.
-   * On wider viewports (desktop) we letterbox it to a phone-sized column instead
-   * of stretching the layout full-width.
+   * Mobile-first app shell: the app is meant to be opened from a phone browser,
+   * but the column now grows at wider viewports (tablet/desktop) instead of
+   * staying locked to a phone-sized width — screens with grids (game hub,
+   * word pickers) use the extra room via responsive grid-cols; screens that
+   * are just forms/lists simply get more breathing room around them.
    */
   min-height: 100dvh;
   max-width: 480px;
@@ -155,9 +157,33 @@ body {
   position: relative;
   overflow-x: hidden;
   /* Establishes a containing block so `position: fixed` descendants (modals,
-     toasts, FABs) stay pinned to the phone-width column instead of the full
+     toasts, FABs) stay pinned to the app column instead of the full
      browser viewport on desktop. */
   transform: translateZ(0);
+}
+
+@media (min-width: 640px) {
+  body {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  body {
+    max-width: 820px;
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    max-width: 1040px;
+  }
+}
+
+@media (min-width: 1280px) {
+  body {
+    max-width: 1180px;
+  }
 }
 
 @media (min-width: 481px) {

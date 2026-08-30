@@ -102,7 +102,7 @@ export default function ChildScreen() {
           </span>
         </div>
 
-        <div className="px-xl flex flex-wrap gap-md mb-lg">
+        <div className="px-xl grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-md mb-lg">
           {GAME_BUTTONS.map((game, i) => (
             <motion.button
               key={game.id}
@@ -110,21 +110,21 @@ export default function ChildScreen() {
               onClick={() => handleGamePress(game.id)}
               initial={{ opacity: 0, y: 30 + i * 10, scale: 0.92 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
+              whileTap={{ scale: 0.94 }}
               transition={{ duration: 0.45, delay: 0.05 * i }}
-              className="rounded-xl overflow-hidden shadow-md transition-transform active:scale-[0.96]"
-              style={{ width: '47.5%' }}
+              className="rounded-xl overflow-hidden shadow-md"
             >
               <span
                 className="flex flex-col items-center justify-center gap-1 py-xl px-md rounded-xl"
-                style={{ backgroundImage: `linear-gradient(135deg, ${game.colors[gender].join(', ')})`, minHeight: 150 }}
+                style={{ backgroundImage: `linear-gradient(135deg, ${game.colors[gender].join(', ')})`, minHeight: 168 }}
               >
                 <span className="w-16 h-16 rounded-pill bg-white/25 flex items-center justify-center mb-sm">
                   <span className="text-[34px]">{game.emoji}</span>
                 </span>
-                <span className="text-subtitle text-white font-extrabold text-center text-[14px]">{game.title}</span>
+                <span className="text-subtitle text-white font-extrabold text-center text-[15px]">{game.title}</span>
                 <span className="text-caption text-white/82 text-center">{game.subtitle}</span>
-                <span className="mt-sm w-7 h-7 rounded-pill bg-white/25 flex items-center justify-center">
-                  <Play size={14} color="rgba(255,255,255,0.9)" />
+                <span className="mt-sm w-8 h-8 rounded-pill bg-white/25 flex items-center justify-center">
+                  <Play size={16} color="rgba(255,255,255,0.9)" />
                 </span>
               </span>
             </motion.button>
