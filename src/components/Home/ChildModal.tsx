@@ -200,6 +200,7 @@ export function ChildModal({ child, visible, onClose, onChildUpdated }: ChildMod
                   onPick={school => (child.school ? setPendingSchool(school) : applySchool(school.id))}
                   onConfirmChange={() => pendingSchool && applySchool(pendingSchool.id)}
                   onCancelChange={() => setPendingSchool(null)}
+                  onRemove={() => applySchool(null)}
                   onOpenMessages={() => {
                     onClose()
                     router.push(`/messages/${child.id}`)
@@ -229,6 +230,7 @@ function UnitTab({
   onConfirmChange,
   onCancelChange,
   onOpenMessages,
+  onRemove,
 }: {
   child: Child
   picking: boolean
@@ -240,6 +242,7 @@ function UnitTab({
   onConfirmChange: () => void
   onCancelChange: () => void
   onOpenMessages: () => void
+  onRemove: () => void
 }) {
   if (picking) {
     return (
@@ -303,9 +306,14 @@ function UnitTab({
             </p>
           )}
         </div>
-        <button type="button" onClick={onStartPicking} className="text-label font-semibold shrink-0" style={{ color: '#3F51B5' }}>
-          Trocar
-        </button>
+        <div className="flex items-center gap-sm shrink-0">
+          <button type="button" onClick={onStartPicking} disabled={saving} className="text-label font-semibold" style={{ color: '#3F51B5' }}>
+            Trocar
+          </button>
+          <button type="button" onClick={onRemove} disabled={saving} className="text-label font-semibold text-gray-500">
+            Remover vínculo
+          </button>
+        </div>
       </div>
 
       {child.educator ? (

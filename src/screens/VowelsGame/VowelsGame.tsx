@@ -10,6 +10,7 @@ import { ArrowLeft, CheckCircle2, Music, Star, Target, Volume2, XCircle } from '
 import { api } from '@/services/api'
 import { readGameNav } from '@/lib/navState'
 import { VOWELS_IMAGE_MAP } from '@/lib/gameImages'
+import { speak } from '@/lib/speech'
 import { useChildTheme, useReduceMotion, useLowStimulation } from '@/hooks'
 import { EmptyState, Loading } from '@/components/feedback'
 import { colors } from '@/theme'
@@ -33,16 +34,6 @@ type GameState = 'playing' | 'correct' | 'wrong'
 
 function shuffle<T>(items: T[]): T[] {
   return [...items].sort(() => 0.5 - Math.random())
-}
-
-function speak(text: string, opts: { rate?: number; pitch?: number } = {}) {
-  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
-  const utterance = new SpeechSynthesisUtterance(text)
-  utterance.lang = 'pt-BR'
-  utterance.rate = opts.rate ?? 1
-  utterance.pitch = opts.pitch ?? 1
-  window.speechSynthesis.cancel()
-  window.speechSynthesis.speak(utterance)
 }
 
 export default function VowelsGame() {

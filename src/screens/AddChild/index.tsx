@@ -84,6 +84,7 @@ export default function AddChildScreen() {
   const [childData, setChildData] = useState<ChildFormData>(INITIAL_DATA)
   const [selectedSchool, setSelectedSchool] = useState<School | null>(null)
   const [pickingSchool, setPickingSchool] = useState(false)
+  const [schoolChoice, setSchoolChoice] = useState<'undecided' | 'yes' | 'no'>('undecided')
   const [isLoading, setIsLoading] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -227,17 +228,32 @@ export default function AddChildScreen() {
             <SchoolStep
               schoolId={childData.schoolId}
               selectedSchool={selectedSchool}
+              schoolChoice={schoolChoice}
               picking={pickingSchool}
-              onStartPicking={() => setPickingSchool(true)}
-              onCancelPicking={() => setPickingSchool(false)}
+              onStartPicking={() => {
+                setSchoolChoice('yes')
+                setPickingSchool(true)
+              }}
+              onCancelPicking={() => {
+                setPickingSchool(false)
+                setSchoolChoice('undecided')
+              }}
               onSelect={school => {
                 set('schoolId', school.id)
                 setSelectedSchool(school)
                 setPickingSchool(false)
+                setSchoolChoice('yes')
               }}
-              onClear={() => {
+              onDecline={() => {
                 set('schoolId', null)
                 setSelectedSchool(null)
+                setSchoolChoice('no')
+              }}
+              onChangeMind={() => setSchoolChoice('undecided')}
+              onRemoveSchool={() => {
+                set('schoolId', null)
+                setSelectedSchool(null)
+                setSchoolChoice('undecided')
               }}
             />
           )}
@@ -297,19 +313,25 @@ export default function AddChildScreen() {
 function SchoolStep({
   schoolId,
   selectedSchool,
+  schoolChoice,
   picking,
   onStartPicking,
   onCancelPicking,
   onSelect,
-  onClear,
+  onDecline,
+  onChangeMind,
+  onRemoveSchool,
 }: {
   schoolId: string | null
   selectedSchool: School | null
+  schoolChoice: 'undecided' | 'yes' | 'no'
   picking: boolean
   onStartPicking: () => void
   onCancelPicking: () => void
   onSelect: (school: School) => void
-  onClear: () => void
+  onDecline: () => void
+  onChangeMind: () => void
+  onRemoveSchool: () => void
 }) {
   return (
     <div className="flex flex-col items-center">
@@ -319,7 +341,7 @@ function SchoolStep({
       </p>
 
       <div className="w-full flex flex-col gap-md">
-        {!schoolId && !picking && (
+        {schoolChoice === 'undecided' && !picking && (
           <div className="flex gap-sm">
             <button
               type="button"
@@ -332,7 +354,7 @@ function SchoolStep({
             </button>
             <button
               type="button"
-              onClick={onClear}
+              onClick={onDecline}
               className="flex-1 flex items-center gap-sm p-md rounded-md border-[1.5px] text-left transition-colors"
               style={{ borderColor: colors.divider, backgroundColor: 'transparent' }}
             >
@@ -365,7 +387,7 @@ function SchoolStep({
                 </p>
               )}
             </div>
-            <button type="button" onClick={onClear} aria-label="Remover unidade selecionada" className="shrink-0 text-text-muted">
+            <button type="button" onClick={onRemoveSchool} aria-label="Remover unidade selecionada" className="shrink-0 text-text-muted">
               <X size={16} />
             </button>
           </div>
@@ -374,8 +396,23 @@ function SchoolStep({
         {schoolId && !selectedSchool && !picking && (
           <div className="flex items-center justify-between gap-sm p-md rounded-md border border-divider">
             <span className="text-body-small text-text-secondary">Unidade vinculada.</span>
-            <button type="button" onClick={onClear} className="text-label text-primary-light">
+            <button type="button" onClick={onRemoveSchool} className="text-label text-primary-light">
               Remover
+            </button>
+          </div>
+        )}
+
+        {schoolChoice === 'no' && !picking && (
+          <div className="flex items-center gap-sm p-md rounded-md border-[1.5px]" style={{ borderColor: colors.divider, backgroundColor: colors.surfaceAlt }}>
+            <div className="w-10 h-10 rounded-md flex items-center justify-center shrink-0" style={{ backgroundColor: colors.surface }}>
+              <X size={18} className="text-text-muted" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-body-small font-medium text-text-primary">Sem unidade</p>
+              <p className="text-label text-text-muted">Cadastro será feito sem vínculo com uma unidade.</p>
+            </div>
+            <button type="button" onClick={onChangeMind} className="shrink-0 text-label text-primary-light">
+              Mudar de ideia
             </button>
           </div>
         )}
