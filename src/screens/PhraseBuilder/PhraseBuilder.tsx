@@ -21,29 +21,27 @@ type Difficulty = 'easy' | 'medium'
 interface WordItem {
   text: string
   emoji: string | null
-  role: string
+  category: string
 }
 
-// Papel gramatical → apresentação das abas do banco de palavras.
-// Mesma lista de papéis usada no seed (Letrinhas-Encantadas-back/prisma/seed-games.ts).
-const ROLE_CONFIG: Record<string, { label: string; emoji: string; gradient: readonly [string, string] }> = {
-  pronome: { label: 'Quem', emoji: '🙋', gradient: ['#FF6B9D', '#FF8E9B'] },
-  verbo: { label: 'Verbos', emoji: '🤲', gradient: ['#4ECDC4', '#44A08D'] },
-  acao: { label: 'Ações', emoji: '🏃', gradient: ['#4ECDC4', '#2E8B84'] },
-  objeto: { label: 'Objetos', emoji: '🧸', gradient: ['#81C784', '#388E3C'] },
-  alimento: { label: 'Comidas', emoji: '🍎', gradient: ['#FF9A8B', '#FF6B9D'] },
-  lugar: { label: 'Lugares', emoji: '🏠', gradient: ['#64B5F6', '#1976D2'] },
-  animal: { label: 'Animais', emoji: '🐶', gradient: ['#FFB74D', '#FF9800'] },
-  cor: { label: 'Cores', emoji: '🎨', gradient: ['#BA68C8', '#9C27B0'] },
-  sentimento: { label: 'Sentimentos', emoji: '😊', gradient: ['#A8E6CF', '#4FA88F'] },
-  social: { label: 'Gentileza', emoji: '🤗', gradient: ['#FDCB6E', '#E17055'] },
-  preposicao: { label: 'Ligações', emoji: '🔗', gradient: ['#74B9FF', '#0984E3'] },
-  artigo: { label: 'Artigos', emoji: '📎', gradient: ['#FD79A8', '#E84393'] },
-  conectivo: { label: 'Conectivos', emoji: '➕', gradient: ['#FFD93D', '#E17055'] },
-  letra: { label: 'Letras', emoji: '🔤', gradient: ['#B39DDB', '#7E57C2'] },
-  numero: { label: 'Números', emoji: '🔢', gradient: ['#90CAF9', '#42A5F5'] },
+// Categoria temática (comunicação) → apresentação das abas do banco de palavras.
+// Mesma lista de categorias usada no seed (Letrinhas-Encantadas-back/prisma/seed-games.ts).
+// O papel GRAMATICAL de cada palavra (usado só pra validar a frase) vive à parte,
+// em `data.role` de cada Word — não tem relação com essas abas que a criança vê.
+const CATEGORY_CONFIG: Record<string, { label: string; emoji: string; gradient: readonly [string, string] }> = {
+  pessoas_familia: { label: 'Pessoas', emoji: '👤', gradient: ['#FF6B9D', '#FF8E9B'] },
+  sentimentos: { label: 'Sentimentos', emoji: '❤️', gradient: ['#A8E6CF', '#4FA88F'] },
+  comida_bebida: { label: 'Comida', emoji: '🍎', gradient: ['#FF9A8B', '#FF6B9D'] },
+  acoes: { label: 'Ações', emoji: '🏃', gradient: ['#4ECDC4', '#2E8B84'] },
+  objetos: { label: 'Objetos', emoji: '🧸', gradient: ['#81C784', '#388E3C'] },
+  lugares: { label: 'Lugares', emoji: '🏠', gradient: ['#64B5F6', '#1976D2'] },
+  necessidades: { label: 'Necessidades', emoji: '🧩', gradient: ['#FFB74D', '#FF9800'] },
+  comunicacao: { label: 'Comunicação', emoji: '🗣️', gradient: ['#FDCB6E', '#E17055'] },
+  brincadeiras: { label: 'Brincadeiras', emoji: '🎨', gradient: ['#BA68C8', '#9C27B0'] },
+  corpo_higiene: { label: 'Corpo e Higiene', emoji: '👕', gradient: ['#90CAF9', '#42A5F5'] },
+  palavras_ligacao: { label: 'Ligações', emoji: '🔗', gradient: ['#74B9FF', '#0984E3'] },
 }
-const DEFAULT_ROLE_CONFIG = { label: 'Outros', emoji: '💬', gradient: ['#B0BEC5', '#78909C'] as const }
+const DEFAULT_CATEGORY_CONFIG = { label: 'Outros', emoji: '💬', gradient: ['#B0BEC5', '#78909C'] as const }
 
 // Papéis que servem de "complemento" na regra do nível médio.
 const COMPLEMENT_ROLES = ['objeto', 'alimento', 'lugar', 'acao', 'animal', 'cor', 'sentimento']
@@ -78,9 +76,9 @@ export default function PhraseBuilder() {
 
   const [level, setLevel] = useState<Difficulty | null>(null)
   const [loading, setLoading] = useState(false)
-  const [wordsByRole, setWordsByRole] = useState<Record<string, WordItem[]>>({})
+  const [wordsByCategory, setWordsByCategory] = useState<Record<string, WordItem[]>>({})
   const [roleByText, setRoleByText] = useState<Map<string, string>>(new Map())
-  const [selectedRole, setSelectedRole] = useState<string>('pronome')
+  const [selectedCategory, setSelectedCategory] = useState<string>('pessoas_familia')
   const [phrase, setPhrase] = useState<string[]>([])
   const [gameState, setGameState] = useState<GameState>('building')
   const [feedback, setFeedback] = useState<string | null>(null)
@@ -107,16 +105,16 @@ export default function PhraseBuilder() {
         const grouped: Record<string, WordItem[]> = {}
         const roleMap = new Map<string, string>()
         res.data.forEach((w: any) => {
-          const role = w.data?.role ?? w.category ?? 'objeto'
-          const item: WordItem = { text: w.text, emoji: w.emoji ?? null, role }
-          if (!grouped[role]) grouped[role] = []
-          grouped[role].push(item)
-          roleMap.set(w.text, role)
+          const category = w.category ?? 'objetos'
+          const item: WordItem = { text: w.text, emoji: w.emoji ?? null, category }
+          if (!grouped[category]) grouped[category] = []
+          grouped[category].push(item)
+          roleMap.set(w.text, w.data?.role ?? 'objeto')
         })
-        setWordsByRole(grouped)
+        setWordsByCategory(grouped)
         setRoleByText(roleMap)
-        const firstRole = grouped['pronome'] ? 'pronome' : Object.keys(grouped)[0]
-        if (firstRole) setSelectedRole(firstRole)
+        const firstCategory = grouped['pessoas_familia'] ? 'pessoas_familia' : Object.keys(grouped)[0]
+        if (firstCategory) setSelectedCategory(firstCategory)
       })
       .catch(() => {})
       .finally(() => setLoading(false))
@@ -195,14 +193,14 @@ export default function PhraseBuilder() {
 
   const changeLevel = useCallback(() => {
     setLevel(null)
-    setWordsByRole({})
+    setWordsByCategory({})
     setRoleByText(new Map())
     setPhrase([])
     setFeedback(null)
     setGameState('building')
   }, [])
 
-  const roleKeys = useMemo(() => Object.keys(wordsByRole), [wordsByRole])
+  const categoryKeys = useMemo(() => Object.keys(wordsByCategory), [wordsByCategory])
 
   // ── Tela 1: escolher o nível ────────────────────────────────────────────
   if (!level) {
@@ -262,7 +260,7 @@ export default function PhraseBuilder() {
     )
   }
 
-  if (roleKeys.length === 0) {
+  if (categoryKeys.length === 0) {
     return (
       <div className="min-h-dvh flex flex-col" style={{ backgroundImage: `linear-gradient(160deg, ${childTheme.backgroundGradient.join(', ')})` }}>
         <div className="flex items-center px-xl pt-[calc(env(safe-area-inset-top)+12px)] pb-md">
@@ -313,14 +311,14 @@ export default function PhraseBuilder() {
       {/* Abas de categoria */}
       <div className="px-xl pb-sm overflow-x-auto">
         <div className="flex gap-sm w-max">
-          {roleKeys.map(role => {
-            const config = ROLE_CONFIG[role] ?? DEFAULT_ROLE_CONFIG
-            const active = selectedRole === role
+          {categoryKeys.map(category => {
+            const config = CATEGORY_CONFIG[category] ?? DEFAULT_CATEGORY_CONFIG
+            const active = selectedCategory === category
             return (
               <button
-                key={role}
+                key={category}
                 type="button"
-                onClick={() => setSelectedRole(role)}
+                onClick={() => setSelectedCategory(category)}
                 className="flex items-center gap-1.5 px-md h-9 rounded-pill shadow-sm shrink-0 transition-transform active:scale-[0.97]"
                 style={
                   active
@@ -341,8 +339,8 @@ export default function PhraseBuilder() {
       {/* Grade de palavras */}
       <div className="flex-1 overflow-y-auto px-xl pb-md">
         <div className="grid grid-cols-3 gap-sm">
-          {(wordsByRole[selectedRole] ?? []).map(word => {
-            const config = ROLE_CONFIG[word.role] ?? DEFAULT_ROLE_CONFIG
+          {(wordsByCategory[selectedCategory] ?? []).map(word => {
+            const config = CATEGORY_CONFIG[word.category] ?? DEFAULT_CATEGORY_CONFIG
             const isPicked = phrase.includes(word.text)
             const isAnimating = animatingWord === word.text
             return (
